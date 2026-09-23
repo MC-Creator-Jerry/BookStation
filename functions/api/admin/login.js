@@ -25,6 +25,6 @@ export async function onRequestPost({ env, request }) {
     return err('bad_password', '密码不正确', 401);
   }
 
-  const sid = await createSession(env);
+  const sid = await createSession(env, { role: 'admin', via: 'password' });
   return ok({ loggedIn: true }, 200, { 'set-cookie': sessionCookie(sid) });
 }
