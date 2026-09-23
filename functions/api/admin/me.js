@@ -1,10 +1,10 @@
-// GET /api/admin/me -> {ok, loggedIn, configured, role, isAdmin, user}
-// 统一返回 200（前端判断简单），登录态 + 角色由会话决定
+// GET /api/admin/me -> {ok, loggedIn, role, isAdmin, user}
+// 统一返回 200（前端判断简单），登录态 + 角色由会话决定。
+// 管理员仅经小蓝页 SSO（站主身份）获得，不再有站点密码，故无 configured 字段。
 import { ok } from '../../_lib/store.js';
-import { configured, getSession } from '../../_lib/auth.js';
+import { getSession } from '../../_lib/auth.js';
 
 export async function onRequestGet({ env, request }) {
-  const isConfigured = configured(env);
   const s = await getSession(env, request);
   const user = s
     ? {
@@ -16,7 +16,6 @@ export async function onRequestGet({ env, request }) {
     : null;
   return ok({
     loggedIn: !!s,
-    configured: isConfigured,
     role: s ? s.role : null,
     isAdmin: s ? s.role === 'admin' : false,
     user,
