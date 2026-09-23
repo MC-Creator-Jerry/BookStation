@@ -13,6 +13,7 @@
 
   async function refreshAuth() {
     const state = await BS.me();
+    $('#logoutBtn').classList.toggle('hidden', !state.loggedIn);
     if (!state.configured) {
       show('login');
       $('#loginHint').innerHTML = '⚠️ 本站还没设置管理员密码。先执行：<br><code>wrangler pages secret put ADMIN_PASSWORD --project-name jerrybookstation</code><br>（设置后需要重新部署一次才生效）';
