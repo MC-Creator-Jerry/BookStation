@@ -85,6 +85,12 @@ window.BS = (function () {
   function statusText(s) { return s === 'done' ? '已完结' : '连载中'; }
   function qs(key) { return new URLSearchParams(location.search).get(key) || ''; }
 
+  /* ---------------- 静态镜像提示（GitHub Pages 没有后端） ---------------- */
+  const LIVE_SITE = 'https://jerrybookstation.pages.dev/';
+  const MIRROR_TIP =
+    '<div class="bs-empty">这里是 <strong>GitHub Pages 静态镜像</strong>：只有静态页面，没有后端接口，所以读不到书架数据。<br><br>' +
+    '完整的书架与阅读请访问 <a class="bs-btn" href="' + LIVE_SITE + '">jerrybookstation.pages.dev</a></div>';
+
   /* ---------------- 阅读进度（本地） ---------------- */
   const PROG_PREFIX = 'bs_progress:';
   function saveProgress(bookId, info) {
@@ -126,7 +132,7 @@ window.BS = (function () {
   function cardHtml(b) {
     const tags = (b.tags || []).slice(0, 3).map(function (t) { return '<span class="bs-tag">' + esc(t) + '</span>'; }).join('');
     return '' +
-      '<a class="bs-card" href="/book?id=' + encodeURIComponent(b.id) + '">' +
+      '<a class="bs-card" href="book.html?id=' + encodeURIComponent(b.id) + '">' +
       coverHtml(b) +
       '<div class="bs-card-body">' +
       '<div class="bs-card-title">' + esc(b.title) + '</div>' +
@@ -159,7 +165,7 @@ window.BS = (function () {
       try {
         data = await api('/books?' + p.toString());
       } catch (e) {
-        grid.innerHTML = '<div class="bs-empty">书架载入失败：' + esc(e.message) + '</div>';
+        grid.innerHTML = e.status === 404 ? MIRROR_TIP : '<div class="bs-empty">书架载入失败：' + esc(e.message) + '</div>';
         return;
       }
       if (countEl) countEl.textContent = '共 ' + data.total + ' 本';
@@ -176,7 +182,7 @@ window.BS = (function () {
       }
       grid.innerHTML = data.books.length
         ? data.books.map(cardHtml).join('')
-        : '<div class="bs-empty">书架还是空的 —— 先在上面搜索别的关键词，或去 <a href="/admin">管理台</a> 上传一本书。</div>';
+        : '<div class="bs-empty">书架还是空的 —— 先在上面搜索别的关键词，或去 <a href="admin/">管理台</a> 上传一本书。</div>';
     }
 
     if (searchInput) {
@@ -206,9 +212,9 @@ window.BS = (function () {
     if (!id) { box.innerHTML = '<div class="bs-empty">缺少书籍参数。</div>'; return; }
     let data;
     try {
-      data = await api('/book?id=' + encodeURIComponent(id));
+      data = await api('book.html?id=' + encodeURIComponent(id));
     } catch (e) {
-      box.innerHTML = '<div class="bs-empty">' + esc(e.message) + '</div>';
+      box.innerHTML = e.status === 404 ? MIRROR_TIP : '<div class="bs-empty">' + esc(e.message) + '</div>';
       return;
     }
     const b = data.book;
@@ -216,8 +222,8 @@ window.BS = (function () {
     const chapters = data.chapters || [];
     const prog = getProgress(b.id);
     const first = chapters[0];
-    const readHref = first ? '/read?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(first.id) : '';
-    const tags = (b.tags || []).map(function (t) { return '<a class="bs-tag" href="/?tag=' + encodeURIComponent(t) + '">' + esc(t) + '</a>'; }).join(' ');
+    const readHref = first ? 'read.html?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(first.id) : '';
+    const tags = (b.tags || []).map(function (t) { return '<a class="bs-tag" href="./?tag=' + encodeURIComponent(t) + '">' + esc(t) + '</a>'; }).join(' ');
 
     box.innerHTML = '' +
       '<div class="bs-book">' +
@@ -231,9 +237,9 @@ window.BS = (function () {
       (tags ? '<div class="bs-row" style="margin-top:10px">' + tags + '</div>' : '') +
       (b.intro ? '<div class="bs-book-intro">' + esc(b.intro) + '</div>' : '') +
       '<div class="bs-row">' +
-      (readHref ? '<a class="bs-btn" href="' + (prog && prog.c ? '/read?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(prog.c) : readHref) + '">' +
+      (readHref ? '<a class="bs-btn" href="' + (prog && prog.c ? 'read.html?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(prog.c) : readHref) + '">' +
         (prog && prog.c ? '继续阅读 · ' + esc(prog.title || '') : '开始阅读') + '</a>' : '<span class="bs-muted">这本书还没有章节</span>') +
-      '<a class="bs-btn plain hidden" data-bs-admin href="/admin?book=' + encodeURIComponent(b.id) + '">管理这本书</a>' +
+      '<a class="bs-btn plain hidden" data-bs-admin href="admin/?book=' + encodeURIComponent(b.id) + '">管理这本书</a>' +
       '</div>' +
       '</div></div>' +
       '<div class="bs-panel" style="margin-bottom:40px">' +
@@ -241,7 +247,7 @@ window.BS = (function () {
       (chapters.length
         ? '<ul class="bs-toc">' + chapters.map(function (c) {
           const on = prog && prog.c === c.id ? ' style="color:var(--accent);font-weight:600"' : '';
-          return '<li><a href="/read?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(c.id) + '"' + on + '>' +
+          return '<li><a href="read.html?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(c.id) + '"' + on + '>' +
             '<span><span class="no">' + c.no + '</span>' + esc(c.title) + '</span><span class="bs-muted">' + fmtWords(c.words) + '</span></a></li>';
         }).join('') + '</ul>'
         : '<div class="bs-empty">还没有章节。</div>') +
@@ -257,6 +263,7 @@ window.BS = (function () {
     saveProgress: saveProgress, getProgress: getProgress,
     coverHtml: coverHtml, cardHtml: cardHtml,
     initIndex: initIndex, initBook: initBook,
+    LIVE_SITE: LIVE_SITE, MIRROR_TIP: MIRROR_TIP,
   };
 })();
 
