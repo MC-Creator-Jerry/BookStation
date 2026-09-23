@@ -110,7 +110,7 @@ window.BS = (function () {
   let meState = null;
   async function me() {
     if (meState) return meState;
-    try { meState = await api('/admin/me'); } catch (e) { meState = { loggedIn: false, configured: false, role: null, isAdmin: false, user: null }; }
+    try { meState = await api('/admin/me'); } catch (e) { meState = { loggedIn: false, role: null, isAdmin: false, user: null }; }
     return meState;
   }
   function doLogout() {
@@ -118,16 +118,41 @@ window.BS = (function () {
       .catch(function () {})
       .then(function () { location.reload(); });
   }
+  function avatarHtml(name, url) {
+    const initial = esc((name || '客').charAt(0).toUpperCase());
+    const fallback = '<span class="avatar-fallback">' + initial + '</span>';
+    if (!url) return fallback;
+    return '<img class="avatar" src="' + esc(url) + '" alt="" referrerpolicy="no-referrer">';
+  }
+
   function renderAuthBox(state) {
     const box = $('#bsAuthBox');
     if (!box) return;
     if (state.loggedIn) {
       const u = (state.user && state.user.name) || (state.user && state.user.login) || '已登录';
       box.innerHTML =
-        '<span class="bs-user" title="' + esc(u) + '">👤 ' + esc(u) + '</span>' +
-        '<a class="bs-link" href="admin/">我的书</a>' +
-        '<a class="bs-link" href="#" data-bs-logout>退出</a>';
-      const lo = box.querySelector('[data-bs-logout]');
+        '<button class="bs-user-pill" id="bsUserPill" type="button" title="' + esc(u) + '">' +
+        avatarHtml(u, state.user && state.user.avatar_url) +
+        '<span class="uname">' + esc(u) + '</span>' +
+        '<span class="caret">▾</span></button>' +
+        '<div class="bs-user-menu" id="bsUserMenu">' +
+        '<a href="admin/">📚 我的书</a>' +
+        '<a href="#" data-bs-logout>🚪 退出登录</a>' +
+        '</div>';
+      const pill = $('#bsUserPill');
+      const menu = $('#bsUserMenu');
+      pill.addEventListener('click', function (e) {
+        e.stopPropagation();
+        menu.classList.toggle('open');
+      });
+      menu.addEventListener('click', function (e) { e.stopPropagation(); });
+      document.addEventListener('click', function () { menu.classList.remove('open'); });
+      // 头像加载失败 → 换成首字母占位
+      const img = box.querySelector('img.avatar');
+      if (img) img.addEventListener('error', function () {
+        img.outerHTML = '<span class="avatar-fallback">' + esc(u.charAt(0).toUpperCase()) + '</span>';
+      });
+      const lo = menu.querySelector('[data-bs-logout]');
       if (lo) lo.addEventListener('click', function (e) { e.preventDefault(); doLogout(); });
     } else {
       box.innerHTML =
