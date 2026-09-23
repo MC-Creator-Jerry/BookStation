@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>书栈 · BookStation</title>
+<meta name="description" content="书栈（BookStation）—— 一个放小说的独立书架。">
+<link rel="icon" href="/assets/favicon.svg">
+<link rel="stylesheet" href="/assets/bookstation.css">
+</head>
+<body data-page="index">
+
+<header class="bs-header">
+  <div class="bs-header-inner">
+    <a class="bs-brand" href="/"><span class="bs-mark">书</span>书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
+    <nav class="bs-nav">
+      <a href="/" class="is-active">书架</a>
+      <a href="/admin" data-bs-admin class="hidden">管理台</a>
+      <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">☾</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="bs-hero">
+    <h1>书栈</h1>
+    <p>放小说的独立书架 · <span id="count">载入中…</span></p>
+  </section>
+
+  <div class="bs-panel">
+    <div class="bs-row">
+      <input id="search" class="bs-input" placeholder="搜书名 / 作者 / 标签 / 简介…" style="flex:1 1 260px">
+      <select id="sort" class="bs-select" title="排序">
+        <option value="updated">最近更新</option>
+        <option value="created">最新入库</option>
+        <option value="views">翻阅最多</option>
+        <option value="words">字数最多</option>
+        <option value="title">按书名</option>
+      </select>
+      <button class="bs-chip" data-status="ongoing" type="button">连载中</button>
+      <button class="bs-chip" data-status="done" type="button">已完结</button>
+    </div>
+    <div class="bs-row" id="tags" style="margin-top:12px"></div>
+  </div>
+
+  <div class="bs-grid" id="grid"></div>
+</main>
+
+<footer class="bs-footer">
+  <div class="wrap">
+    <span>书栈 BookStation</span><span>·</span>
+    <a href="/admin">管理台</a><span>·</span>
+    <a href="/assets/favicon.svg" target="_blank" rel="noopener">站点图标</a>
+  </div>
+</footer>
+
+<script src="/assets/bookstation.js"></script>
+</body>
+</html>
