@@ -33,7 +33,7 @@ window.BS = (function () {
   const THEME_KEY = 'bs_theme';
   function paintThemeBtn() {
     const btn = $('#themeBtn');
-    if (btn) btn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀' : '☾';
+    if (btn) btn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
   }
   function setTheme(t) {
     document.documentElement.dataset.theme = t;
