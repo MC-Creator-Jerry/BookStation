@@ -21,7 +21,7 @@ bookstation-site/
 ├─ _headers              HTML 不缓存 + 基础安全头
 └─ functions/            独立后端
    ├─ _lib/store.js      KV 数据层（books:index / book: / chaps: / chap:）
-   ├─ _lib/auth.js       管理员鉴权（SHA-256 常量时间比较、未配密钥 fail-closed）
+   ├─ _lib/auth.js       管理员鉴权（管理员仅经小蓝页 SSO 获得；角色 role:'admin'/'creator'）
    └─ api/
       ├─ books.js        GET 列表(搜索/标签/排序/分页) · POST 新建(admin)
       ├─ book.js         GET 详情(含目录) · PUT 改(admin) · DELETE 删(admin)
@@ -44,15 +44,12 @@ bookstation-site/
 ## 部署
 
 ```powershell
-# 首次需设置管理员密码（值不要写进任何文件）
-wrangler pages secret put ADMIN_PASSWORD --project-name jerrybookstation
-
 # 部署（脚本内部会 Set-Location 到本站目录，保证不串到别的站的 Functions）
 powershell -ExecutionPolicy Bypass -File ..\deploy-bookstation.ps1
 powershell -ExecutionPolicy Bypass -File ..\deploy-bookstation-gh.ps1
 ```
 
-> ⚠️ 密钥设置后必须**再部署一次**才对已存在的部署生效。
+> 管理员不需要站点密码：管理员身份由「小蓝页 SSO」授予（小蓝页那边 isAdmin=站主即本站管理员）。部署前请确认小蓝页与书栈两侧的 SSO 配对密钥（`SSO_SECRET_BOOKSTATION` / `SSO_CLIENT_SECRET`）已设置且相等。
 
 ## 隔离
 
@@ -62,5 +59,5 @@ powershell -ExecutionPolicy Bypass -File ..\deploy-bookstation-gh.ps1
 
 - 章节正文按**纯文本**渲染（`textContent` 级别转义），不执行任何 HTML/脚本。
 - 管理接口一律 `requireAdmin`：`/api/admin/*` 之外，书籍与章节的**写操作**全部需要登录。
-- 密码只存在 Pages secret（`ADMIN_PASSWORD`），代码与仓库里没有任何明文。
-- 未配置密钥时登录接口返回 `500 not_configured`（fail-closed）。
+- 管理员**不设站点密码**：管理员身份仅经小蓝页 SSO 授予（小蓝页管理员＝本站管理员，普通用户＝创作者）。
+- `/api/admin/login` 已停用，调用一律返回 `use_sso`（400），引导改用 SSO 入口。
