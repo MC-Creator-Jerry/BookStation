@@ -27,16 +27,8 @@
 
   <section id="loginView" class="bs-panel" style="max-width:430px;margin:56px auto">
     <h2 style="font-family:var(--serif);margin:0 0 8px">登录书栈</h2>
-    <p class="hint" id="loginHint"></p>
-    <div id="pwdBox">
-      <div class="field">
-        <label for="pwd">站点密码（管理员）</label>
-        <input id="pwd" type="password" class="bs-input" placeholder="输入管理员密码" autocomplete="current-password">
-      </div>
-      <button class="bs-btn" id="loginBtn" type="button" style="width:100%">登录</button>
-      <p class="hint" style="margin-top:12px">密码由站主在部署时写入 Pages secret（`ADMIN_PASSWORD`），不保存在本仓库。</p>
-    </div>
-    <div class="bs-or">或用小蓝页账户</div>
+    <p class="hint" id="loginHint">本站使用小蓝页账户登录：小蓝页管理员自动成为本站管理员，普通用户登录后即为「创作者」。</p>
+    <div class="bs-or">用以下方式进入</div>
     <a class="bs-sso-btn" href="../api/sso/start?next=%2Fadmin%2F">📚 通过小蓝页登录</a>
     <p class="hint" style="margin-top:12px;margin-bottom:0">小蓝页用户登录后即为「创作者」，可创建并管理自己的书；小蓝页管理员自动获得本站全部管理权限。</p>
   </section>
