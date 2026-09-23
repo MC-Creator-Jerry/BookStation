@@ -5,6 +5,7 @@
   let cur = null;          // 当前书籍
   let curChapters = [];     // 当前书籍章节列表
   let editingChapter = null; // null = 新增
+  let meState = null;       // 当前登录态（role / user）
 
   function show(view) {
     $('#loginView').classList.toggle('hidden', view !== 'login');
@@ -13,17 +14,38 @@
 
   async function refreshAuth() {
     const state = await BS.me();
+    meState = state;
     $('#logoutBtn').classList.toggle('hidden', !state.loggedIn);
+    // 密码登录框仅在「已配置管理员密码」时显示；SSO 登录始终可用
+    const pwdBox = $('#pwdBox');
+    if (pwdBox) pwdBox.classList.toggle('hidden', !state.configured);
     if (!state.configured) {
-      show('login');
-      $('#loginHint').innerHTML = '⚠️ 本站还没设置管理员密码。先执行：<br><code>wrangler pages secret put ADMIN_PASSWORD --project-name jerrybookstation</code><br>（设置后需要重新部署一次才生效）';
-      $('#loginBtn').disabled = true;
-      return;
+      $('#loginHint').innerHTML = 'ℹ️ 本站未设置管理员密码：可改用下方「通过小蓝页登录」作为创作者/管理员进入。';
+    } else {
+      $('#loginHint').innerHTML = '';
     }
-    $('#loginHint').innerHTML = '';
-    $('#loginBtn').disabled = false;
-    if (state.loggedIn) { show('panel'); await loadBooks(); }
-    else show('login');
+    if (state.loggedIn) {
+      show('panel');
+      paintRoleBanner(state);
+      await loadBooks();
+    } else {
+      show('login');
+    }
+  }
+
+  function paintRoleBanner(state) {
+    const el = $('#roleBanner');
+    if (!el) return;
+    if (state.isAdmin) {
+      el.className = 'role-banner admin';
+      el.style.display = '';
+      el.textContent = '🛡️ 管理员模式：可管理全部书籍与章节。';
+    } else {
+      el.className = 'role-banner creator';
+      el.style.display = '';
+      const who = (state.user && state.user.name) || '创作者';
+      el.textContent = '✍️ ' + who + ' · 创作者模式：可创建并管理你自己的书。';
+    }
   }
 
   async function doLogin() {
@@ -47,8 +69,9 @@
 
   /* ---------- 书籍列表 ---------- */
   async function loadBooks(selectId) {
+    const q = meState && meState.role === 'creator' ? '?size=48&sort=updated&mine=1' : '?size=48&sort=updated';
     try {
-      const d = await BS.api('/books?size=48&sort=updated');
+      const d = await BS.api('/books' + q);
       books = d.books || [];
     } catch (e) {
       BS.toast('书籍列表载入失败：' + e.message, true);
@@ -100,7 +123,9 @@
     $('#fStatus').value = cur.status || 'ongoing';
     $('#fIntro').value = cur.intro || '';
     $('#chapArea').classList.remove('hidden');
-    $('#deleteBookBtn').classList.remove('hidden');
+    // 删除按钮：管理员可见；创作者仅对自己拥有的书可见
+    const canDelete = meState && (meState.isAdmin || (meState.role === 'creator' && cur.owner === (meState.user && meState.user.sub)));
+    $('#deleteBookBtn').classList.toggle('hidden', !canDelete);
     renderChapters();
     loadBooks(id);
     showPanelTab();
