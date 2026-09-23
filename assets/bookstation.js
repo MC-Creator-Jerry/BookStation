@@ -110,13 +110,38 @@ window.BS = (function () {
   let meState = null;
   async function me() {
     if (meState) return meState;
-    try { meState = await api('/admin/me'); } catch (e) { meState = { loggedIn: false, configured: false }; }
+    try { meState = await api('/admin/me'); } catch (e) { meState = { loggedIn: false, configured: false, role: null, isAdmin: false, user: null }; }
     return meState;
+  }
+  function doLogout() {
+    api('/admin/logout', { method: 'POST' })
+      .catch(function () {})
+      .then(function () { location.reload(); });
+  }
+  function renderAuthBox(state) {
+    const box = $('#bsAuthBox');
+    if (!box) return;
+    if (state.loggedIn) {
+      const u = (state.user && state.user.name) || (state.user && state.user.login) || '已登录';
+      box.innerHTML =
+        '<span class="bs-user" title="' + esc(u) + '">👤 ' + esc(u) + '</span>' +
+        '<a class="bs-link" href="admin/">我的书</a>' +
+        '<a class="bs-link" href="#" data-bs-logout>退出</a>';
+      const lo = box.querySelector('[data-bs-logout]');
+      if (lo) lo.addEventListener('click', function (e) { e.preventDefault(); doLogout(); });
+    } else {
+      box.innerHTML =
+        '<a class="bs-link" href="api/sso/start?next=' +
+        encodeURIComponent(location.pathname + location.search) +
+        '">登录</a>';
+    }
   }
   async function mountAuth() {
     const state = await me();
     $$('[data-bs-admin]').forEach(function (el) { el.classList.toggle('hidden', !state.loggedIn); });
+    $$('[data-bs-creator]').forEach(function (el) { el.classList.toggle('hidden', !state.loggedIn); });
     $$('[data-bs-auth-state]').forEach(function (el) { el.textContent = state.loggedIn ? '已登录' : '未登录'; });
+    renderAuthBox(state);
     return state;
   }
 
