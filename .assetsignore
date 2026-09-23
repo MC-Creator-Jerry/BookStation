@@ -1,0 +1,9 @@
+# 这些文件不进静态资源
+functions
+node_modules
+.git
+.github
+README.md
+wrangler.toml
+.assetsignore
+.nojekyll
