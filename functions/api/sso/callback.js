@@ -78,13 +78,19 @@ export async function onRequestGet({ env, request }) {
 
   if (!d) return redirect('/admin/?sso=token_failed', [clearSsoStateCookie()]);
 
-  // 小蓝页管理员 → 书栈管理员；其余 → 创作者
+  // 小蓝页管理员 → 书栈管理员；其余 → 创作者。
+  // 两个分支都存完整档案（sub/login/name/avatar_url）：头像胶囊与管理台欢迎语都要用。
   const role = d.isAdmin ? 'admin' : 'creator';
   const sid = await createSession(
     env,
-    role === 'admin'
-      ? { role: 'admin', via: 'sso' }
-      : { role: 'creator', sub: d.sub, login: d.login, name: d.name, avatar_url: d.avatar_url, via: 'sso' },
+    {
+      role: role,
+      sub: d.sub,
+      login: d.login,
+      name: d.name,
+      avatar_url: d.avatar_url || '',
+      via: 'sso',
+    },
     SSO_TTL
   );
 
