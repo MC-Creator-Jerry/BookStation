@@ -234,3 +234,20 @@ img { max-width: 100%; display: block; }
   .reader { padding: 22px 18px 116px; font-size: var(--rd-size, 18px); }
 }
 .local-only-warn { display: none; }
+
+/* ---------- 登录态（导航右上角） ---------- */
+.bs-auth-box { display: inline-flex; align-items: center; gap: 10px; margin-left: 4px; }
+.bs-auth-box .bs-user { font-size: 0.92rem; color: var(--text); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bs-auth-box .bs-link { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.92rem; }
+.bs-auth-box .bs-link:hover { text-decoration: underline; }
+
+/* ---------- SSO 登录引导（管理台登录页） ---------- */
+.bs-sso-row { margin-top: 14px; text-align: center; }
+.bs-sso-btn { display: inline-block; width: 100%; box-sizing: border-box; padding: 11px 16px; background: var(--accent); color: #fff; border-radius: 10px; text-decoration: none; font-weight: 700; text-align: center; }
+.bs-sso-btn:hover { background: #005a9e; }
+.bs-or { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; color: var(--muted); font-size: 0.85rem; }
+.bs-or::before, .bs-or::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.role-banner { margin: 0 auto 22px; max-width: 760px; padding: 10px 16px; border-radius: 10px; font-size: 0.92rem; }
+.role-banner.creator { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.role-banner.admin { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); }
+.owner-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--muted); border-radius: 999px; padding: 2px 8px; margin-left: 8px; }
