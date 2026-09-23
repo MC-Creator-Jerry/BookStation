@@ -12,7 +12,7 @@ import {
   cleanText,
   normTags,
 } from '../_lib/store.js';
-import { requireAdmin } from '../_lib/auth.js';
+import { requireWrite } from '../_lib/auth.js';
 
 export async function onRequestGet({ env, request, waitUntil }) {
   const id = clean(new URL(request.url).searchParams.get('id'), 60);
@@ -38,13 +38,13 @@ export async function onRequestGet({ env, request, waitUntil }) {
 }
 
 export async function onRequestPut({ env, request }) {
-  const denied = await requireAdmin(env, request);
-  if (denied) return denied;
-
   const id = clean(new URL(request.url).searchParams.get('id'), 60);
   const kv = env.BOOKSTATION_KV;
   const book = await getBook(kv, id);
   if (!book) return err('not_found', '没有这本书', 404);
+
+  const denied = await requireWrite(env, request, book);
+  if (denied instanceof Response) return denied;
 
   let body;
   try {
@@ -70,12 +70,12 @@ export async function onRequestPut({ env, request }) {
 }
 
 export async function onRequestDelete({ env, request }) {
-  const denied = await requireAdmin(env, request);
-  if (denied) return denied;
-
   const id = clean(new URL(request.url).searchParams.get('id'), 60);
   const book = await getBook(env.BOOKSTATION_KV, id);
   if (!book) return err('not_found', '没有这本书', 404);
+
+  const denied = await requireWrite(env, request, book);
+  if (denied instanceof Response) return denied;
 
   const removed = await deleteBookCompletely(env.BOOKSTATION_KV, id);
   return ok({ deleted: book.id, title: book.title, chapters: removed });
