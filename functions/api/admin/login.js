@@ -1,30 +1,8 @@
-// POST /api/admin/login  {password}  -> 种会话 Cookie
-import { ok, err } from '../../_lib/store.js';
-import { configured, verifyPassword, createSession, sessionCookie, parseCookies, COOKIE } from '../../_lib/auth.js';
+// POST /api/admin/login
+// 站点密码登录已取消：管理员仅经小蓝页 SSO 获得（站主身份）。
+// 此端点保留以明确告知调用方改用 SSO，避免旧前端/脚本误以为还能用密码。
+import { err } from '../../_lib/store.js';
 
-export async function onRequestPost({ env, request }) {
-  if (!configured(env)) {
-    return err('not_configured', '站点未设置管理员密码，请先执行 pages secret put ADMIN_PASSWORD', 500);
-  }
-
-  let body = {};
-  try {
-    body = await request.json();
-  } catch {
-    body = {};
-  }
-
-  const password = String(body.password == null ? '' : body.password);
-  if (!password) return err('missing_password', '请输入密码');
-
-  // 防爆破：先清掉旧会话，再校验
-  const old = parseCookies(request)[COOKIE];
-  if (old) await env.BOOKSTATION_KV.delete(`bs_sid:${old}`);
-
-  if (!(await verifyPassword(env, password))) {
-    return err('bad_password', '密码不正确', 401);
-  }
-
-  const sid = await createSession(env, { role: 'admin', via: 'password' });
-  return ok({ loggedIn: true }, 200, { 'set-cookie': sessionCookie(sid) });
+export async function onRequestPost() {
+  return err('use_sso', '本站已取消密码登录：请改用「通过小蓝页登录」按钮，以小蓝页账户（站主=管理员，普通用户=创作者）进入。', 400);
 }
