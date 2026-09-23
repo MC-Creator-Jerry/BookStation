@@ -19,7 +19,7 @@ import {
   cleanText,
   wordCount,
 } from '../_lib/store.js';
-import { requireAdmin } from '../_lib/auth.js';
+import { requireWrite } from '../_lib/auth.js';
 
 export async function onRequestGet({ env, request }) {
   const url = new URL(request.url);
@@ -53,9 +53,6 @@ export async function onRequestGet({ env, request }) {
 }
 
 export async function onRequestPost({ env, request }) {
-  const denied = await requireAdmin(env, request);
-  if (denied) return denied;
-
   const url = new URL(request.url);
   const kv = env.BOOKSTATION_KV;
   const bookId = clean(url.searchParams.get('id'), 60);
@@ -64,6 +61,9 @@ export async function onRequestPost({ env, request }) {
 
   const book = await getBook(kv, bookId);
   if (!book) return err('not_found', '没有这本书', 404);
+
+  const denied = await requireWrite(env, request, book);
+  if (denied instanceof Response) return denied;
 
   const list = await getChapterList(kv, bookId);
 
@@ -113,9 +113,6 @@ export async function onRequestPost({ env, request }) {
 }
 
 export async function onRequestPut({ env, request }) {
-  const denied = await requireAdmin(env, request);
-  if (denied) return denied;
-
   const url = new URL(request.url);
   const kv = env.BOOKSTATION_KV;
   const bookId = clean(url.searchParams.get('id'), 60);
@@ -123,6 +120,9 @@ export async function onRequestPut({ env, request }) {
 
   const book = await getBook(kv, bookId);
   if (!book) return err('not_found', '没有这本书', 404);
+
+  const denied = await requireWrite(env, request, book);
+  if (denied instanceof Response) return denied;
 
   const chapter = await getChapter(kv, bookId, cid);
   if (!chapter) return err('not_found', '章节不存在', 404);
@@ -157,9 +157,6 @@ export async function onRequestPut({ env, request }) {
 }
 
 export async function onRequestDelete({ env, request }) {
-  const denied = await requireAdmin(env, request);
-  if (denied) return denied;
-
   const url = new URL(request.url);
   const kv = env.BOOKSTATION_KV;
   const bookId = clean(url.searchParams.get('id'), 60);
@@ -167,6 +164,9 @@ export async function onRequestDelete({ env, request }) {
 
   const book = await getBook(kv, bookId);
   if (!book) return err('not_found', '没有这本书', 404);
+
+  const denied = await requireWrite(env, request, book);
+  if (denied instanceof Response) return denied;
 
   const list = await getChapterList(kv, bookId);
   if (!list.some((c) => c.id === cid)) return err('not_found', '章节不存在', 404);
