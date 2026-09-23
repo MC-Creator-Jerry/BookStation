@@ -1,0 +1,40 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# HTML 一律不缓存：Pages 默认给静态 HTML 打 s-maxage=604800（7 天），
+# 且缓存键忽略 query string（?cb= 反缓存无效），改版后会长期看到旧页面。
+/
+  Cache-Control: no-cache, must-revalidate
+
+/index.html
+  Cache-Control: no-cache, must-revalidate
+
+/book
+  Cache-Control: no-cache, must-revalidate
+
+/book.html
+  Cache-Control: no-cache, must-revalidate
+
+/read
+  Cache-Control: no-cache, must-revalidate
+
+/read.html
+  Cache-Control: no-cache, must-revalidate
+
+/admin
+  Cache-Control: no-cache, must-revalidate
+
+/admin/
+  Cache-Control: no-cache, must-revalidate
+
+/admin/index.html
+  Cache-Control: no-cache, must-revalidate
+
+/404.html
+  Cache-Control: no-cache, must-revalidate
+
+/assets/*
+  Cache-Control: public, max-age=3600
