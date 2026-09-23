@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>管理台 · 书栈</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/assets/favicon.svg">
+<link rel="stylesheet" href="/assets/bookstation.css">
+</head>
+<body data-page="admin">
+
+<header class="bs-header">
+  <div class="bs-header-inner">
+    <a class="bs-brand" href="/"><span class="bs-mark">书</span>书栈<span class="bs-brand-sub">ADMIN</span></a>
+    <nav class="bs-nav">
+      <a href="/">书架</a>
+      <a href="/admin" class="is-active">管理台</a>
+      <span class="bs-badge" data-bs-auth-state>未登录</span>
+      <button class="bs-icon-btn" id="logoutBtn" title="退出登录" type="button" style="width:auto;padding:0 10px">退出</button>
+      <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">☾</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="loginView" class="bs-panel" style="max-width:430px;margin:56px auto">
+    <h2 style="font-family:var(--serif);margin:0 0 8px">管理员登录</h2>
+    <p class="hint" id="loginHint"></p>
+    <div class="field">
+      <label for="pwd">站点密码</label>
+      <input id="pwd" type="password" class="bs-input" placeholder="输入管理员密码" autocomplete="current-password">
+    </div>
+    <button class="bs-btn" id="loginBtn" type="button" style="width:100%">登录</button>
+    <p class="hint" style="margin-top:12px">密码由站主在部署时写入 Pages secret（`ADMIN_PASSWORD`），不保存在本仓库。</p>
+  </section>
+
+  <section id="panelView" class="hidden">
+    <div class="admin-grid">
+      <div class="bs-panel">
+        <div class="bs-row">
+          <strong>书架</strong>
+          <span class="bs-spacer"></span>
+          <button class="bs-btn sm" id="newBookBtn" type="button">＋ 新建书</button>
+        </div>
+        <ul class="admin-list" id="bookList" style="margin-top:10px"></ul>
+      </div>
+
+      <div>
+        <div class="bs-panel" id="tabBook">
+          <div class="bs-row">
+            <strong id="bookFormTitle">新建书籍</strong>
+            <span class="bs-spacer"></span>
+            <button class="bs-btn danger sm hidden" id="deleteBookBtn" type="button">删除这本书</button>
+            <button class="bs-btn sm" id="saveBookBtn" type="button">保存</button>
+          </div>
+          <input type="hidden" id="bookId">
+
+          <div class="field" style="margin-top:12px">
+            <label for="fTitle">书名</label>
+            <input id="fTitle" class="bs-input" placeholder="例：长夜行">
+          </div>
+          <div class="bs-row">
+            <div class="field" style="flex:1 1 160px">
+              <label for="fAuthor">作者</label>
+              <input id="fAuthor" class="bs-input" placeholder="佚名">
+            </div>
+            <div class="field" style="flex:0 0 140px">
+              <label for="fStatus">状态</label>
+              <select id="fStatus" class="bs-select">
+                <option value="ongoing">连载中</option>
+                <option value="done">已完结</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="fTags">标签（用「、」或逗号分隔，最多 8 个）</label>
+            <input id="fTags" class="bs-input" placeholder="玄幻、都市、悬疑">
+          </div>
+          <div class="field">
+            <label for="fCover">封面图 URL（留空则自动生成文字封面）</label>
+            <input id="fCover" class="bs-input" placeholder="https://...">
+          </div>
+          <div class="field">
+            <label for="fIntro">简介</label>
+            <textarea id="fIntro" class="bs-textarea" rows="4" placeholder="一句话简介或几百字的作品简介…"></textarea>
+          </div>
+          <p class="hint">本站为「外链模式」：只存封面图片网址，不托管图片文件，零存储成本。</p>
+        </div>
+
+        <div id="delBox" class="hidden" style="margin-top:14px"></div>
+
+        <div class="bs-panel hidden" id="chapArea" style="margin-top:16px">
+          <div class="bs-row">
+            <strong>章节</strong>
+            <span class="bs-spacer"></span>
+            <span class="hint">拖动不改顺序，用 ↑ ↓ 调整</span>
+            <button class="bs-btn plain sm" id="newChapBtn" type="button">＋ 新增章节</button>
+          </div>
+          <div id="chapList" style="margin-top:10px"></div>
+
+          <div class="bs-panel" style="margin-top:16px;background:var(--card-2)">
+            <strong id="chapEditorTitle">新增章节</strong>
+            <div class="field" style="margin-top:10px">
+              <label for="cTitle">章节名（留空自动编号）</label>
+              <input id="cTitle" class="bs-input" placeholder="第一章 夜里的灯">
+            </div>
+            <div class="field">
+              <label for="cBody">正文（纯文本：空行分段；行首 &gt; 为引用；--- 为分隔线）</label>
+              <textarea id="cBody" class="bs-textarea" rows="14" placeholder="把正文粘进来即可，单章上限约 20 万字。"></textarea>
+            </div>
+            <div class="bs-row">
+              <button class="bs-btn" id="saveChapBtn" type="button">保存章节</button>
+              <span class="hint">正文按纯文本渲染并自动转义 HTML，不会执行任何脚本。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bs-footer">
+  <div class="wrap"><span>书栈 BookStation · 管理台</span><span>·</span><a href="/">返回书架</a></div>
+</footer>
+
+<script src="/assets/bookstation.js"></script>
+<script src="/assets/admin.js"></script>
+</body>
+</html>
