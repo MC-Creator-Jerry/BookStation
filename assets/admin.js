@@ -16,14 +16,6 @@
     const state = await BS.me();
     meState = state;
     $('#logoutBtn').classList.toggle('hidden', !state.loggedIn);
-    // 密码登录框仅在「已配置管理员密码」时显示；SSO 登录始终可用
-    const pwdBox = $('#pwdBox');
-    if (pwdBox) pwdBox.classList.toggle('hidden', !state.configured);
-    if (!state.configured) {
-      $('#loginHint').innerHTML = 'ℹ️ 本站未设置管理员密码：可改用下方「通过小蓝页登录」作为创作者/管理员进入。';
-    } else {
-      $('#loginHint').innerHTML = '';
-    }
     if (state.loggedIn) {
       show('panel');
       paintRoleBanner(state);
@@ -45,20 +37,6 @@
       el.style.display = '';
       const who = (state.user && state.user.name) || '创作者';
       el.textContent = '✍️ ' + who + ' · 创作者模式：可创建并管理你自己的书。';
-    }
-  }
-
-  async function doLogin() {
-    const pwd = $('#pwd').value;
-    if (!pwd) { BS.toast('请输入密码', true); return; }
-    $('#loginBtn').disabled = true;
-    try {
-      await BS.api('/admin/login', { method: 'POST', body: { password: pwd } });
-      $('#pwd').value = '';
-      location.reload();
-    } catch (e) {
-      BS.toast(e.message || '登录失败', true);
-      $('#loginBtn').disabled = false;
     }
   }
 
@@ -271,8 +249,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    $('#loginBtn').addEventListener('click', doLogin);
-    $('#pwd').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
     $('#logoutBtn').addEventListener('click', doLogout);
     $('#newBookBtn').addEventListener('click', newBookForm);
     $('#saveBookBtn').addEventListener('click', saveBook);
