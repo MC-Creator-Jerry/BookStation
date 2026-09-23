@@ -12,7 +12,7 @@ import {
   cleanText,
   normTags,
 } from '../_lib/store.js';
-import { requireAdmin } from '../_lib/auth.js';
+import { requireSession, getSession } from '../_lib/auth.js';
 
 const SORTS = {
   updated: (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0),
@@ -30,8 +30,17 @@ export async function onRequestGet({ env, request }) {
   const sortKey = SORTS[clean(url.searchParams.get('sort'), 12)] ? clean(url.searchParams.get('sort'), 12) : 'updated';
   const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1);
   const size = Math.min(48, Math.max(1, parseInt(url.searchParams.get('size') || '24', 10) || 24));
+  const mine = url.searchParams.get('mine') === '1';
 
   let books = await listBooks(env.BOOKSTATION_KV);
+
+  // 仅看「我自己的书」：创作者按 sub 过滤；管理员按 owner==='admin' 过滤（需登录）
+  if (mine) {
+    const s = await getSession(env, request);
+    if (!s) return err('unauthorized', '请先登录', 401);
+    const key = s.role === 'admin' ? 'admin' : s.sub;
+    books = books.filter((b) => (b.owner || null) === key);
+  }
   const tags = [...new Set(books.flatMap((b) => b.tags || []))].sort((a, b) => a.localeCompare(b, 'zh'));
 
   if (q) {
@@ -63,8 +72,8 @@ export async function onRequestGet({ env, request }) {
 }
 
 export async function onRequestPost({ env, request }) {
-  const denied = await requireAdmin(env, request);
-  if (denied) return denied;
+  const s = await requireSession(env, request);
+  if (s instanceof Response) return s;
 
   let body;
   try {
@@ -85,6 +94,7 @@ export async function onRequestPost({ env, request }) {
     intro: cleanText(body.intro, 4000),
     tags: normTags(body.tags),
     status: body.status === 'done' ? 'done' : 'ongoing',
+    owner: s.role === 'admin' ? 'admin' : s.sub, // 创作者归属到自己的小蓝页身份
     createdAt: now,
     updatedAt: now,
     chapterCount: 0,
