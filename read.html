@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阅读 · 书栈</title>
+<link rel="icon" href="/assets/favicon.svg">
+<link rel="stylesheet" href="/assets/bookstation.css">
+</head>
+<body data-page="read" class="read-body">
+
+<div class="read-bar">
+  <div class="read-bar-inner">
+    <a class="bs-brand" href="/" title="返回书架"><span class="bs-mark">书</span></a>
+    <div style="min-width:0;flex:1 1 180px">
+      <a id="bookTitle" class="read-title" href="/">…</a>
+      <div class="read-chapter-title" id="chapterTitle"></div>
+    </div>
+    <button class="bs-icon-btn" id="sizeDown" title="缩小字号" type="button">A-</button>
+    <span id="sizeLabel" class="bs-muted" style="min-width:40px;text-align:center">19px</span>
+    <button class="bs-icon-btn" id="sizeUp" title="放大字号" type="button">A+</button>
+    <button class="bs-icon-btn" id="lhDown" title="收紧行距" type="button">↕-</button>
+    <button class="bs-icon-btn" id="lhUp" title="放宽行距" type="button">↕+</button>
+    <button class="bs-btn plain sm" id="tocBtn" type="button">目录</button>
+    <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">☾</button>
+  </div>
+</div>
+
+<main class="reader" id="content">
+  <p class="no-indent bs-muted">正在载入…</p>
+</main>
+
+<div class="read-pager">
+  <div class="read-pager-inner">
+    <a id="pagerPrev" class="bs-btn plain sm" href="/">← 上一章</a>
+    <div class="read-progress"><i id="pctBar"></i></div>
+    <span class="read-pct" id="pctText">0%</span>
+    <a id="pagerNext" class="bs-btn sm" href="/">下一章 →</a>
+  </div>
+</div>
+
+<div class="drawer" id="drawer">
+  <div class="drawer-mask" id="drawerMask"></div>
+  <div class="drawer-panel">
+    <div class="drawer-head">
+      <strong id="drawerTitle">目录</strong>
+      <span class="bs-spacer"></span>
+      <button class="bs-icon-btn" id="drawerClose" title="关闭" type="button">✕</button>
+    </div>
+    <div class="drawer-list" id="drawerList"></div>
+  </div>
+</div>
+
+<script src="/assets/bookstation.js"></script>
+<script src="/assets/reader.js"></script>
+</body>
+</html>
