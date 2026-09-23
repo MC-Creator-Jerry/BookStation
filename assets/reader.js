@@ -60,7 +60,7 @@
 
   function navBtn(label, target, dir) {
     if (!target) return '<span class="bs-btn plain" style="opacity:.45;pointer-events:none">' + dir + '没有' + label + '</span>';
-    return '<a class="bs-btn plain" href="/read?id=' + encodeURIComponent(id) + '&c=' + encodeURIComponent(target.id) + '">' + dir + esc1(target.title) + '</a>';
+    return '<a class="bs-btn plain" href="read.html?id=' + encodeURIComponent(id) + '&c=' + encodeURIComponent(target.id) + '">' + dir + esc1(target.title) + '</a>';
   }
   function esc1(s) { return BS.esc(s).slice(0, 24); }
 
@@ -70,14 +70,16 @@
     try {
       data = await BS.api('/chapter?id=' + encodeURIComponent(id) + '&c=' + encodeURIComponent(cid));
     } catch (e) {
-      area.innerHTML = '<div class="bs-empty">' + BS.esc(e.message) + '<br><br><a class="bs-btn plain" href="/book?id=' + encodeURIComponent(id) + '">返回书籍页</a></div>';
+      area.innerHTML = e.status === 404
+        ? BS.MIRROR_TIP
+        : '<div class="bs-empty">' + BS.esc(e.message) + '<br><br><a class="bs-btn plain" href="book.html?id=' + encodeURIComponent(id) + '">返回书籍页</a></div>';
       return;
     }
     const b = data.book;
     const ch = data.chapter;
     document.title = ch.title + ' · ' + b.title + ' · 书栈';
     BS.$('#bookTitle').textContent = b.title;
-    BS.$('#bookTitle').href = '/book?id=' + encodeURIComponent(b.id);
+    BS.$('#bookTitle').href = 'book.html?id=' + encodeURIComponent(b.id);
     BS.$('#chapterTitle').textContent = ch.title;
 
     area.innerHTML = '<h1>' + BS.esc(ch.title) + '</h1>' +
@@ -88,17 +90,17 @@
     // 目录
     BS.$('#drawerTitle').textContent = b.title + ' · 目录';
     BS.$('#drawerList').innerHTML = (data.index || []).map(function (c) {
-      return '<a href="/read?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(c.id) + '" class="' + (c.id === ch.id ? 'is-on' : '') + '">' +
+      return '<a href="read.html?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(c.id) + '" class="' + (c.id === ch.id ? 'is-on' : '') + '">' +
         '<span class="bs-muted" style="min-width:34px">' + c.no + '</span><span>' + BS.esc(c.title) + '</span></a>';
     }).join('');
 
     // 底部翻页条
     const prev = data.prev, next = data.next;
     BS.$('#pagerPrev').outerHTML = prev
-      ? '<a id="pagerPrev" class="bs-btn plain sm" href="/read?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(prev.id) + '">← 上一章</a>'
+      ? '<a id="pagerPrev" class="bs-btn plain sm" href="read.html?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(prev.id) + '">← 上一章</a>'
       : '<span id="pagerPrev" class="bs-btn plain sm" style="opacity:.4">← 上一章</span>';
     BS.$('#pagerNext').outerHTML = next
-      ? '<a id="pagerNext" class="bs-btn sm" href="/read?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(next.id) + '">下一章 →</a>'
+      ? '<a id="pagerNext" class="bs-btn sm" href="read.html?id=' + encodeURIComponent(b.id) + '&c=' + encodeURIComponent(next.id) + '">下一章 →</a>'
       : '<span id="pagerNext" class="bs-btn sm" style="opacity:.4">下一章 →</span>';
 
     BS.saveProgress(b.id, { c: ch.id, title: ch.title, no: ch.no });
@@ -117,7 +119,7 @@
     if (!data) return;
     const t = dir > 0 ? data.next : data.prev;
     if (!t) { BS.toast(dir > 0 ? '已经是最后一章' : '已经是第一章'); return; }
-    location.href = '/read?id=' + encodeURIComponent(id) + '&c=' + encodeURIComponent(t.id);
+    location.href = 'read.html?id=' + encodeURIComponent(id) + '&c=' + encodeURIComponent(t.id);
   }
 
   document.addEventListener('DOMContentLoaded', function () {
