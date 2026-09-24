@@ -14,6 +14,17 @@ import {
 } from '../_lib/store.js';
 import { requireSession, getSession } from '../_lib/auth.js';
 
+// 每日上传上限（防滥用）：创作者每个「北京时间自然日」最多 6 本新书；管理员不限。
+const DAILY_NEW_BOOK_LIMIT = 6;
+function quotaDayKeyFor(sub) {
+  // 用北京时间（UTC+8）的自然日切分，避免跨日歧义
+  const d = new Date(Date.now() + 8 * 3600 * 1000);
+  const day = d.getUTCFullYear() + '-' +
+    String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getUTCDate()).padStart(2, '0');
+  return 'bs_quota:' + day + ':' + (sub || 'anon');
+}
+
 const SORTS = {
   updated: (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0),
   created: (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
@@ -85,6 +96,15 @@ export async function onRequestPost({ env, request }) {
   const title = clean(body.title, 80);
   if (!title) return err('missing_title', '书名不能为空');
 
+  // 每日上传上限：仅约束创作者（管理员不限）
+  const quotaKey = s.role !== 'admin' ? quotaDayKeyFor(s.sub) : null;
+  if (quotaKey) {
+    const used = Number((await env.BOOKSTATION_KV.get(quotaKey)) || 0);
+    if (used >= DAILY_NEW_BOOK_LIMIT) {
+      return err('quota_exceeded', '今日新书上传已达上限（' + DAILY_NEW_BOOK_LIMIT + ' 本/天），请明天再来', 429);
+    }
+  }
+
   const now = Date.now();
   const book = {
     id: newId('b'),
@@ -106,6 +126,12 @@ export async function onRequestPost({ env, request }) {
   const ids = await readIndex(env.BOOKSTATION_KV);
   ids.unshift(book.id);
   await writeIndex(env.BOOKSTATION_KV, ids);
+
+  // 写入成功后计入当日配额（TTL 2 天，自然过期，无需手动清）
+  if (quotaKey) {
+    const used = Number((await env.BOOKSTATION_KV.get(quotaKey)) || 0);
+    await env.BOOKSTATION_KV.put(quotaKey, String(used + 1), { expirationTtl: 2 * 24 * 60 * 60 });
+  }
 
   return ok({ book }, 201);
 }
