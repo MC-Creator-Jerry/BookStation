@@ -61,3 +61,4 @@ powershell -ExecutionPolicy Bypass -File ..\deploy-bookstation-gh.ps1
 - 管理接口一律 `requireAdmin`：`/api/admin/*` 之外，书籍与章节的**写操作**全部需要登录。
 - 管理员**不设站点密码**：管理员身份仅经小蓝页 SSO 授予（小蓝页管理员＝本站管理员，普通用户＝创作者）。
 - `/api/admin/login` 已停用，调用一律返回 `use_sso`（400），引导改用 SSO 入口。
+- **每日上传上限**：创作者每个「北京时间自然日」最多新建 **6 本**书（`POST /api/books` 第 7 次返回 `429 quota_exceeded`）；管理员不限。计数键 `bs_quota:<日期>:<sub>`，TTL 2 天自动过期。
