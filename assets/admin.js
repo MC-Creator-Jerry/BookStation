@@ -8,6 +8,10 @@
   let curChapters = [];     // 当前书籍章节列表
   let editingChapter = null; // null = 新增
   let meState = null;       // 当前登录态（role / user）
+  const selected = new Set();  // 批量勾选的书籍 id
+  let ccStatus = '';           // 当前状态筛选（'' / ongoing / done）
+  let ccQ = '';                // 当前搜索词
+  let ccSort = 'updated';       // 当前排序
 
   function show(view) {
     $('#loginView').classList.toggle('hidden', view !== 'login');
@@ -49,6 +53,7 @@
       show('panel');
       paintRoleBanner(state);
       await refreshQuota();
+      await loadStats();
       await loadBooks();
       if (sb) sb.classList.remove('hidden');
       if (sab) sab.classList.toggle('hidden', !state.isAdmin);
@@ -117,32 +122,147 @@
     location.reload();
   }
 
-  /* ---------- 书籍列表 ---------- */
-  async function loadBooks(selectId) {
-    const q = meState && meState.role === 'creator' ? '?size=48&sort=updated&mine=1' : '?size=48&sort=updated';
+  /* ---------- 创作概览（稿件中心式数据概览） ---------- */
+  async function loadStats() {
     try {
-      const d = await BS.api('/books' + q);
+      const d = await BS.api('/books/stats');
+      $('#stTotal').textContent = d.total;
+      $('#stSplit').textContent = '连载中 ' + d.ongoing + ' · 已完结 ' + d.done;
+      $('#stWords').textContent = BS.fmtWords(d.words);
+      $('#stViews').textContent = (d.views || 0).toLocaleString('zh-CN');
+      $('#stChaps').textContent = d.chapters;
+      $('#tabAll').textContent = d.total;
+      $('#tabOngoing').textContent = d.ongoing;
+      $('#tabDone').textContent = d.done;
+    } catch (e) { /* 概览失败不阻断管理台 */ }
+  }
+
+  /* ---------- 作品列表（支持状态/搜索/排序） ---------- */
+  async function loadBooks(selectId) {
+    const p = new URLSearchParams();
+    if (ccStatus) p.set('status', ccStatus);
+    if (ccQ) p.set('q', ccQ);
+    p.set('sort', ccSort);
+    p.set('size', '48');
+    const prefix = meState && meState.role === 'creator' ? '?mine=1&' : '?';
+    try {
+      const d = await BS.api('/books' + prefix + p.toString());
       books = d.books || [];
     } catch (e) {
       BS.toast('书籍列表载入失败：' + e.message, true);
       books = [];
     }
-    $('#bookList').innerHTML = books.length
-      ? books.map(function (b) {
-        return '<li data-id="' + BS.esc(b.id) + '" class="' + (cur && cur.id === b.id ? 'is-on' : '') + '">' +
-          '<div class="t">' + BS.esc(b.title) + '</div>' +
-          '<div class="m">' + BS.esc(b.author || '佚名') + ' · ' + (b.chapterCount || 0) + ' 章 · ' + (b.status === 'done' ? '已完结' : '连载中') + '</div>' +
-          '</li>';
-      }).join('')
-      : '<li class="bs-muted" style="cursor:default">还没有书，右边新建一本。</li>';
-    $('#bookList').querySelectorAll('li[data-id]').forEach(function (li) {
-      li.addEventListener('click', function () { selectBook(li.dataset.id); });
-    });
+    renderBookList();
     if (selectId) selectBook(selectId);
+  }
+
+  function renderBookList() {
+    const ul = $('#bookList');
+    if (!ul) return;
+    if (!books.length) {
+      ul.innerHTML = '<li class="cc-empty"><span class="cc-empty-emoji">📭</span>' +
+        (ccQ || ccStatus ? '没有符合条件的书。' : '还没有书，点左上角「＋ 新建书」开始创作。') + '</li>';
+      updateSelCount();
+      return;
+    }
+    ul.innerHTML = books.map(function (b) {
+      const on = cur && cur.id === b.id ? ' is-on' : '';
+      const checked = selected.has(b.id) ? ' checked' : '';
+      const cover = BS.coverHtml(b, 'cc-cover');
+      return '<li class="cc-row' + on + '" data-id="' + BS.esc(b.id) + '">' +
+        '<label class="cc-check" onclick="event.stopPropagation()"><input type="checkbox" class="cc-sel" data-id="' + BS.esc(b.id) + '"' + checked + '></label>' +
+        cover +
+        '<div class="cc-row-main">' +
+          '<div class="cc-row-top"><a class="cc-title" href="book.html?id=' + encodeURIComponent(b.id) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + BS.esc(b.title) + '</a>' +
+          '<span class="bs-badge' + (b.status === 'done' ? ' done' : '') + '">' + BS.statusText(b.status) + '</span></div>' +
+          '<div class="cc-row-meta">' + BS.esc(b.author || '佚名') + ' · ' + (b.chapterCount || 0) + ' 章 · ' + BS.fmtWords(b.words) + ' · ' + (b.views || 0) + ' 翻阅 · 更新于 ' + BS.fmtDate(b.updatedAt) + '</div>' +
+        '</div>' +
+        '<div class="cc-actions">' +
+          '<button class="bs-btn plain sm" data-act="edit">编辑</button>' +
+          '<button class="bs-btn plain sm" data-act="chapters">章节</button>' +
+          '<button class="bs-btn plain sm" data-act="view">查看</button>' +
+          '<button class="bs-btn danger sm" data-act="del">删除</button>' +
+        '</div>' +
+      '</li>';
+    }).join('');
+
+    ul.querySelectorAll('.cc-row').forEach(function (li) {
+      const id = li.dataset.id;
+      li.addEventListener('click', function (e) {
+        if (e.target.closest('.cc-actions') || e.target.closest('.cc-check') || e.target.closest('a')) return;
+        selectBook(id);
+      });
+      li.querySelectorAll('.cc-sel').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+          if (cb.checked) selected.add(id); else selected.delete(id);
+          updateSelCount();
+        });
+      });
+      li.querySelectorAll('.cc-actions button').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const act = btn.dataset.act;
+          if (act === 'edit' || act === 'chapters') { selectBook(id); }
+          else if (act === 'view') { window.open('book.html?id=' + encodeURIComponent(id), '_blank'); }
+          else if (act === 'del') { askDeleteById(id); }
+        });
+      });
+    });
+    updateSelCount();
+  }
+
+  function updateSelCount() {
+    const el = $('#ccSelCount');
+    if (el) el.textContent = '已选 ' + selected.size + ' 项';
+    const all = $('#ccSelectAll');
+    if (all) all.checked = books.length > 0 && books.every(function (b) { return selected.has(b.id); });
+  }
+
+  async function batchDelete() {
+    if (!selected.size) { BS.toast('请先勾选要删除的书', true); return; }
+    const ids = Array.from(selected);
+    if (!window.confirm('确认删除选中的 ' + ids.length + ' 本书？将同时删除它们的全部章节，且不可恢复。')) return;
+    let okN = 0, failN = 0;
+    const deleted = new Set();
+    for (const id of ids) {
+      try {
+        await BS.api('/book?id=' + encodeURIComponent(id), { method: 'DELETE' });
+        okN++; deleted.add(id);
+      } catch (e) { failN++; }
+    }
+    selected.clear();
+    BS.toast('已删除 ' + okN + ' 本' + (failN ? '，' + failN + ' 本失败' : ''), failN > 0);
+    await loadStats();
+    if (cur && deleted.has(cur.id)) { newBookForm(); }
+    else { await loadBooks(cur ? cur.id : null); }
+  }
+
+  function askDeleteById(id) {
+    const b = books.find(function (x) { return x.id === id; });
+    const title = b ? b.title : id;
+    const box = $('#delBox');
+    box.classList.remove('hidden');
+    box.innerHTML =
+      '<div class="bs-panel" style="border-color:var(--danger)">' +
+      '<strong style="color:var(--danger)">确认删除《' + BS.esc(title) + '》？</strong>' +
+      '<div class="hint" style="margin:8px 0">将同时删除它的全部章节，且不可恢复。</div>' +
+      '<div class="bs-row"><button class="bs-btn danger" id="delYes">确认删除</button><button class="bs-btn plain" id="delNo">取消</button></div></div>';
+    $('#delYes').addEventListener('click', async function () {
+      try {
+        const d = await BS.api('/book?id=' + encodeURIComponent(id), { method: 'DELETE' });
+        BS.toast('已删除《' + d.title + '》');
+        box.classList.add('hidden');
+        selected.delete(id);
+        if (cur && cur.id === id) newBookForm();
+        else { await loadStats(); await loadBooks(cur ? cur.id : null); }
+      } catch (e) { BS.toast(e.message, true); }
+    });
+    $('#delNo').addEventListener('click', function () { box.classList.add('hidden'); });
   }
 
   function newBookForm() {
     cur = null;
+    selected.clear();
     $('#bookFormTitle').textContent = '新建书籍';
     $('#bookForm') && $('#bookForm').reset();
     $('#bookId').value = '';
@@ -332,6 +452,39 @@
     const rci = $('#redeemCodeInput');
     if (rci) rci.addEventListener('keydown', function (e) { if (e.key === 'Enter') doRedeem(); });
     $('#genCodesBtn').addEventListener('click', doGenerateCodes);
+
+    // 状态 tabs
+    const tabs = $('#ccTabs');
+    if (tabs) tabs.querySelectorAll('.cc-tab').forEach(function (t) {
+      t.addEventListener('click', function () {
+        ccStatus = t.dataset.status || '';
+        tabs.querySelectorAll('.cc-tab').forEach(function (x) { x.classList.toggle('is-on', x === t); });
+        loadBooks();
+      });
+    });
+    // 搜索（防抖）
+    const search = $('#ccSearch');
+    if (search) {
+      let st = null;
+      search.addEventListener('input', function () {
+        clearTimeout(st);
+        st = setTimeout(function () { ccQ = search.value.trim(); loadBooks(); }, 260);
+      });
+    }
+    // 排序
+    const sortSel = $('#ccSort');
+    if (sortSel) sortSel.addEventListener('change', function () { ccSort = sortSel.value; loadBooks(); });
+    // 全选
+    const selAll = $('#ccSelectAll');
+    if (selAll) selAll.addEventListener('change', function () {
+      if (this.checked) books.forEach(function (b) { selected.add(b.id); });
+      else selected.clear();
+      renderBookList();
+    });
+    // 批量删除
+    const batchDel = $('#ccBatchDel');
+    if (batchDel) batchDel.addEventListener('click', batchDelete);
+
     refreshAuth();
   });
 })();
