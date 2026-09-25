@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>兑换赞助码 · 书栈</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/bookstation.css">
+</head>
+<body data-page="redeem">
+
+<header class="bs-header">
+  <div class="bs-header-inner">
+    <a class="bs-brand" href="./"><img class="bs-mark" src="assets/favicon.svg" alt="书栈">书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
+    <nav class="bs-nav">
+      <a href="./">书架</a>
+      <a href="admin/">创作者中心</a>
+      <a href="redeem.html" class="is-cur">兑换</a>
+      <span id="bsAuthBox" class="bs-auth-box"></span>
+      <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">🌙</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="bs-hero">
+    <h1>兑换赞助码</h1>
+    <p>粘贴你从爱发电获取的「一次性赞助码」，解锁或顺延书栈高级版（每日上传上限 6 → 16 本）。</p>
+  </section>
+
+  <div id="loginRequired" class="bs-panel hidden" style="max-width:760px;margin:0 auto 18px">
+    <div class="bs-empty">请先 <a href="api/sso/start?next=%2Fredeem.html">登录书栈</a> 后再兑换赞助码。</div>
+  </div>
+
+  <div id="redeemView" class="hidden">
+
+    <section class="bs-panel" style="max-width:760px;margin:0 auto 18px">
+      <h2 class="bs-h">输入赞助码</h2>
+      <div class="field">
+        <input id="redeemInput" class="bs-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="例如：ABCD-EFGH-2345" maxlength="32">
+      </div>
+      <div class="bs-row" style="align-items:center;gap:12px">
+        <button id="redeemBtn" class="bs-btn" type="button">兑换</button>
+        <span id="redeemMsg" class="redeem-msg"></span>
+      </div>
+      <p class="hint" style="margin-top:14px">如何获取赞助码：① 在 <a href="https://ifdian.net/order/create?plan_id=2927c56ab87911f188a65254001e7c00" target="_blank" rel="noopener">爱发电</a> 订阅「书栈·发布功能升级」（¥13.25/月）；② 付款后爱发电自动发送一次性赞助码；③ 粘贴到上方兑换即可解锁高级版。续费时再兑一次即可顺延有效期。</p>
+    </section>
+
+    <section class="bs-panel" style="max-width:760px;margin:0 auto 18px">
+      <h2 class="bs-h">当前会员状态</h2>
+      <div id="vipStatus" class="vip-status">载入中…</div>
+      <div id="vipDetail" class="vip-detail"></div>
+    </section>
+
+  </div>
+
+  <div id="redeemErr" class="bs-panel hidden" style="max-width:760px;margin:0 auto 18px">
+    <div class="bs-empty">状态读取失败，请稍后重试。</div>
+  </div>
+
+</main>
+
+<footer class="bs-footer">
+  <div class="wrap">
+    <span>书栈 BookStation</span><span>·</span>
+    <a href="./">书架</a><span>·</span>
+    <a href="admin/">创作者中心</a><span>·</span>
+    <a href="settings.html">设置</a><span>·</span>
+    <a href="redeem.html">兑换</a>
+  </div>
+</footer>
+
+<script src="assets/bookstation.js"></script>
+<script src="assets/redeem.js"></script>
+</body>
+</html>
