@@ -11,6 +11,7 @@ import {
   clean,
   cleanText,
   normTags,
+  CATEGORIES,
 } from '../_lib/store.js';
 import { requireSession, getSession } from '../_lib/auth.js';
 import { getBenefit, quotaDayKeyFor } from '../_lib/benefit.js';
@@ -28,6 +29,7 @@ export async function onRequestGet({ env, request }) {
   const q = clean(url.searchParams.get('q'), 60).toLowerCase();
   const tag = clean(url.searchParams.get('tag'), 30).toLowerCase();
   const status = clean(url.searchParams.get('status'), 12).toLowerCase();
+  const category = clean(url.searchParams.get('category'), 20);
   const sortKey = SORTS[clean(url.searchParams.get('sort'), 12)] ? clean(url.searchParams.get('sort'), 12) : 'updated';
   const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10) || 1);
   const size = Math.min(48, Math.max(1, parseInt(url.searchParams.get('size') || '24', 10) || 24));
@@ -55,6 +57,9 @@ export async function onRequestGet({ env, request }) {
   if (status === 'ongoing' || status === 'done') {
     books = books.filter((b) => b.status === status);
   }
+  if (category) {
+    books = books.filter((b) => (b.category || '') === category);
+  }
   books.sort(SORTS[sortKey]);
 
   const total = books.length;
@@ -68,6 +73,7 @@ export async function onRequestGet({ env, request }) {
     pages: Math.max(1, Math.ceil(total / size)),
     sort: sortKey,
     tags,
+    categories: CATEGORIES,
     books: slice,
   });
 }
@@ -107,6 +113,7 @@ export async function onRequestPost({ env, request }) {
     cover: clean(body.cover, 500),
     intro: cleanText(body.intro, 4000),
     tags: normTags(body.tags),
+    category: clean(body.category, 20) || '其他',
     status: body.status === 'done' ? 'done' : 'ongoing',
     owner: s.role === 'admin' ? 'admin' : s.sub, // 创作者归属到自己的小蓝页身份
     createdAt: now,
