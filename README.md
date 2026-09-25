@@ -34,7 +34,9 @@ bookstation-site/
 | 键 | 值 |
 |---|---|
 | `books:index` | `[bookId, ...]` 书架索引（顺序即展示顺序） |
-| `book:<bookId>` | `{id,title,author,cover,intro,tags,status,createdAt,updatedAt,chapterCount,words,views}` |
+| `book:<bookId>` | `{id,title,author,cover,intro,tags,category,status,createdAt,updatedAt,chapterCount,words,views}` |
+
+> 字段说明：`category`（类型/分类）取自精选词表 `['小说','文学','诗歌','散文','随笔','科幻','奇幻','悬疑','推理','历史','传记','武侠','仙侠','言情','同人','漫画','剧本','教材','其他']`（见 `functions/_lib/store.js` 的 `CATEGORIES` 与前端 `assets/bookstation.js` 的 `BS.CATEGORIES`，两处需同步）；未传时兜底为「其他」。`tags` 为自由标签（最多 8 个，用顿号/逗号分隔）。
 | `chaps:<bookId>` | `[{id,title,words,createdAt,updatedAt}, ...]` 章节顺序 = 数组顺序 |
 | `chap:<bookId>:<cid>` | `{id,bookId,title,content,createdAt,updatedAt}` |
 | `bs_sid:<sid>` | 管理员会话（TTL 12h） |
