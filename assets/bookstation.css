@@ -292,3 +292,20 @@ img { max-width: 100%; display: block; }
 }
 .quota-box.admin { background: color-mix(in srgb, var(--ok) 14%, transparent); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); color: var(--ok); }
 .quota-box a { color: var(--accent); font-weight: 700; text-decoration: underline; }
+
+/* 设置页 · 资料行 / 升级状态 */
+.bs-h { font-family: var(--serif); font-size: 1.05rem; margin: 0 0 12px; }
+.bs-meta { display: flex; justify-content: space-between; gap: 14px; padding: 7px 0; border-bottom: 1px dashed var(--border); }
+.bs-meta:last-child { border-bottom: 0; }
+.bs-meta .bs-muted { flex: 0 0 auto; }
+.bs-meta > span:last-child { text-align: right; font-weight: 600; }
+
+.vip-status { font-size: 1.15rem; font-weight: 700; padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; }
+.vip-status.is-vip {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 20%, transparent), color-mix(in srgb, var(--ok) 18%, transparent));
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  color: var(--text);
+}
+.vip-status.not-vip { background: var(--card-2); border: 1px solid var(--border); color: var(--muted); }
+.vip-detail { margin-bottom: 6px; }
+.vip-actions { margin-top: 6px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
