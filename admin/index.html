@@ -92,6 +92,9 @@
           </div>
           <span class="bs-spacer"></span>
           <input id="ccSearch" class="bs-input cc-search" type="search" placeholder="搜索书名 / 作者">
+          <select id="ccCategory" class="bs-select" title="按类型筛选">
+            <option value="">全部类型</option>
+          </select>
           <select id="ccSort" class="bs-select">
             <option value="updated">最近更新</option>
             <option value="created">最新创建</option>
@@ -133,6 +136,10 @@
                 <option value="ongoing">连载中</option>
                 <option value="done">已完结</option>
               </select>
+            </div>
+            <div class="field" style="flex:0 0 150px">
+              <label for="fCategory">类型</label>
+              <select id="fCategory" class="bs-select"></select>
             </div>
           </div>
           <div class="field">
