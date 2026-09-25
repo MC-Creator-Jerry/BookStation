@@ -36,6 +36,23 @@
   <section id="panelView" class="hidden">
     <div id="roleBanner" class="role-banner" style="display:none"></div>
     <div id="quotaBox" class="quota-box hidden"></div>
+    <div id="sponsorBox" class="bs-panel hidden" style="max-width:760px;margin:0 auto 18px">
+      <strong>书栈·发布功能升级</strong>
+      <p class="hint" style="margin:8px 0">订阅后在此粘贴赞助码即可解锁「🌟 高级版」（每日上传上限 6 → 16 本）。还没有码？<a href="https://ifdian.net/order/create?plan_id=2927c56ab87911f188a65254001e7c00" target="_blank" rel="noopener">去爱发电订阅</a></p>
+      <div class="bs-row">
+        <input id="redeemCodeInput" class="bs-input" placeholder="输入赞助码，如 ABCD-1234" style="flex:1 1 200px" maxlength="16" autocomplete="off">
+        <button class="bs-btn sm" id="redeemBtn" type="button">兑换</button>
+      </div>
+    </div>
+    <div id="sponsorAdminBox" class="bs-panel hidden" data-bs-admin style="max-width:760px;margin:0 auto 18px">
+      <strong>赞助码管理（仅管理员）</strong>
+      <p class="hint" style="margin:8px 0">生成一批「书栈·发布功能升级」兑换码，贴进爱发电对应套餐的「自动随机回复」。用户付款后拿到码，回书栈兑换即绑定。明文码仅显示一次。</p>
+      <div class="bs-row">
+        <input id="genCount" class="bs-input" type="number" min="1" max="500" value="20" style="flex:0 0 100px">
+        <button class="bs-btn sm" id="genCodesBtn" type="button">生成赞助码</button>
+      </div>
+      <textarea id="genCodesOut" class="bs-textarea hidden" rows="6" readonly style="margin-top:10px;font-family:var(--sans);white-space:pre"></textarea>
+    </div>
     <div class="admin-grid">
       <div class="bs-panel">
         <div class="bs-row">
