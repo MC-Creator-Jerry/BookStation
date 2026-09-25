@@ -128,6 +128,8 @@ window.BS = (function () {
   function renderAuthBox(state) {
     const box = $('#bsAuthBox');
     if (!box) return;
+    // /admin/ 下的页面相对链接需要回到站点根（GH 镜像子路径下同样成立）
+    const pre = /^\/admin(\/|$)/.test(location.pathname) ? '../' : './';
     if (state.loggedIn) {
       const u = (state.user && state.user.name) || (state.user && state.user.login) || '已登录';
       box.innerHTML =
@@ -136,8 +138,8 @@ window.BS = (function () {
         '<span class="uname">' + esc(u) + '</span>' +
         '<span class="caret">▾</span></button>' +
         '<div class="bs-user-menu" id="bsUserMenu">' +
-        '<a href="admin/">📚 我的书</a>' +
-        '<a href="/settings.html">⚙️ 设置</a>' +
+        '<a href="' + pre + 'admin/">📚 我的书</a>' +
+        '<a href="' + pre + 'settings.html">⚙️ 设置</a>' +
         '<a href="#" data-bs-logout>🚪 退出登录</a>' +
         '</div>';
       const pill = $('#bsUserPill');
@@ -157,7 +159,7 @@ window.BS = (function () {
       if (lo) lo.addEventListener('click', function (e) { e.preventDefault(); doLogout(); });
     } else {
       box.innerHTML =
-        '<a class="bs-link" href="api/sso/start?next=' +
+        '<a class="bs-link" href="' + pre + 'api/sso/start?next=' +
         encodeURIComponent(location.pathname + location.search) +
         '">登录</a>';
     }
@@ -323,5 +325,5 @@ document.addEventListener('DOMContentLoaded', function () {
   const page = document.body.dataset.page;
   if (page === 'index') { BS.initIndex(); BS.mountAuth(); }
   else if (page === 'book') { BS.initBook(); }
-  else if (page !== 'read' && page !== 'admin') { BS.mountAuth(); }
+  else if (page !== 'read') { BS.mountAuth(); }
 });
