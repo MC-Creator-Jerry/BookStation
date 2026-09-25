@@ -46,7 +46,6 @@
   async function refreshAuth() {
     const state = await BS.me();
     meState = state;
-    $('#logoutBtn').classList.toggle('hidden', !state.loggedIn);
     const sb = $('#sponsorBox');
     const sab = $('#sponsorAdminBox');
     if (state.loggedIn) {
@@ -117,10 +116,7 @@
     }
   }
 
-  async function doLogout() {
-    try { await BS.api('/admin/logout', { method: 'POST' }); } catch (e) { /* 忽略 */ }
-    location.reload();
-  }
+  /* 退出登录统一走 bookstation.js 顶栏用户菜单（data-bs-logout） */
 
   /* ---------- 创作概览（稿件中心式数据概览） ---------- */
   async function loadStats() {
@@ -442,7 +438,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    $('#logoutBtn').addEventListener('click', doLogout);
     $('#newBookBtn').addEventListener('click', newBookForm);
     $('#saveBookBtn').addEventListener('click', saveBook);
     $('#deleteBookBtn').addEventListener('click', askDelete);
