@@ -3,6 +3,13 @@ window.BS = (function () {
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
 
+  // 书栈「类型（分类）」精选词表（与 functions/_lib/store.js 的 CATEGORIES 同步）
+  const CATEGORIES = [
+    '小说', '文学', '诗歌', '散文', '随笔', '科幻', '奇幻', '悬疑', '推理',
+    '历史', '传记', '武侠', '仙侠', '言情', '同人', '漫画', '剧本', '教材', '其他',
+  ];
+  function categoryText(c) { return CATEGORIES.includes(c) ? c : '其他'; }
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -189,7 +196,7 @@ window.BS = (function () {
       coverHtml(b) +
       '<div class="bs-card-body">' +
       '<div class="bs-card-title">' + esc(b.title) + '</div>' +
-      '<div class="bs-card-meta"><span>' + esc(b.author || '佚名') + '</span><span class="bs-badge' + (b.status === 'done' ? ' done' : '') + '">' + statusText(b.status) + '</span></div>' +
+      '<div class="bs-card-meta"><span>' + esc(b.author || '佚名') + '</span><span class="bs-cat">' + esc(categoryText(b.category)) + '</span><span class="bs-badge' + (b.status === 'done' ? ' done' : '') + '">' + statusText(b.status) + '</span></div>' +
       '<div class="bs-card-meta"><span>' + (b.chapterCount || 0) + ' 章</span><span>' + fmtWords(b.words) + '</span></div>' +
       (b.intro ? '<div class="bs-card-intro">' + esc(b.intro) + '</div>' : '') +
       (tags ? '<div class="bs-card-meta">' + tags + '</div>' : '') +
@@ -200,9 +207,10 @@ window.BS = (function () {
     const grid = $('#grid');
     const tagBox = $('#tags');
     const countEl = $('#count');
-    const state = { q: qs('q'), tag: qs('tag'), status: '', sort: 'updated', page: 1 };
+    const state = { q: qs('q'), tag: qs('tag'), status: '', category: qs('category') || '', sort: 'updated', page: 1 };
     const searchInput = $('#search');
     const sortSel = $('#sort');
+    const catSel = $('#catFilter');
     if (searchInput) searchInput.value = state.q;
 
     async function load() {
@@ -211,6 +219,7 @@ window.BS = (function () {
       if (state.q) p.set('q', state.q);
       if (state.tag) p.set('tag', state.tag);
       if (state.status) p.set('status', state.status);
+      if (state.category) p.set('category', state.category);
       p.set('sort', state.sort);
       p.set('page', String(state.page));
       p.set('size', '48');
@@ -248,6 +257,13 @@ window.BS = (function () {
     if (sortSel) {
       sortSel.addEventListener('change', function () { state.sort = sortSel.value; load(); });
     }
+    if (catSel) {
+      catSel.innerHTML = '<option value="">全部类型</option>' + CATEGORIES.map(function (c) {
+        return '<option value="' + esc(c) + '">' + esc(c) + '</option>';
+      }).join('');
+      if (state.category) catSel.value = state.category;
+      catSel.addEventListener('change', function () { state.category = catSel.value; state.page = 1; load(); });
+    }
     $$('[data-status]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.status = state.status === btn.dataset.status ? '' : btn.dataset.status;
@@ -284,6 +300,7 @@ window.BS = (function () {
       '<div>' +
       '<h2>' + esc(b.title) + '</h2>' +
       '<div class="bs-row bs-muted"><span>' + esc(b.author || '佚名') + '</span>' +
+      '<span class="bs-cat">' + esc(categoryText(b.category)) + '</span>' +
       '<span class="bs-badge' + (b.status === 'done' ? ' done' : '') + '">' + statusText(b.status) + '</span>' +
       '<span>' + chapters.length + ' 章</span><span>' + fmtWords(b.words) + '</span>' +
       '<span>' + (b.views || 0) + ' 次翻阅</span><span>更新于 ' + fmtDate(b.updatedAt) + '</span></div>' +
@@ -314,6 +331,7 @@ window.BS = (function () {
     fmtWords: fmtWords, fmtDate: fmtDate, statusText: statusText, qs: qs,
     setTheme: setTheme, initTheme: initTheme, mountAuth: mountAuth, me: me,
     saveProgress: saveProgress, getProgress: getProgress,
+    CATEGORIES: CATEGORIES, categoryText: categoryText,
     coverHtml: coverHtml, cardHtml: cardHtml,
     initIndex: initIndex, initBook: initBook,
     LIVE_SITE: LIVE_SITE, MIRROR_TIP: MIRROR_TIP,
