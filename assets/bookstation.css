@@ -359,3 +359,10 @@ img { max-width: 100%; display: block; }
   .cc-overview { grid-template-columns: repeat(2, 1fr); }
   .cc-actions { flex-wrap: wrap; justify-content: flex-end; }
 }
+
+/* ===== 兑换专页 ===== */
+.redeem-msg { font-size: 14px; line-height: 1.5; min-height: 1.2em; }
+.redeem-msg.ok { color: var(--ok); }
+.redeem-msg.err { color: var(--danger); }
+#redeemInput { max-width: 360px; letter-spacing: .06em; font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace); text-transform: uppercase; }
+
