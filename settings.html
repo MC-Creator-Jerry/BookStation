@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>设置 · 书栈</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/bookstation.css">
+</head>
+<body data-page="settings">
+
+<header class="bs-header">
+  <div class="bs-header-inner">
+    <a class="bs-brand" href="./"><span class="bs-mark">书</span>书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
+    <nav class="bs-nav">
+      <a href="./">书架</a>
+      <a href="admin/">创作者中心</a>
+      <span id="bsAuthBox" class="bs-auth-box"></span>
+      <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">🌙</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="bs-hero">
+    <h1>设置</h1>
+    <p>账户与「书栈·发布功能升级」会员状态。</p>
+  </section>
+
+  <div id="loginRequired" class="bs-panel hidden" style="max-width:760px;margin:0 auto 18px">
+    <div class="bs-empty">请先 <a href="api/sso/start?next=%2Fsettings.html">登录书栈</a> 查看你的升级状态。</div>
+  </div>
+
+  <div id="settingsView" class="hidden">
+
+    <section class="bs-panel" style="max-width:760px;margin:0 auto 18px">
+      <h2 class="bs-h">账户</h2>
+      <div class="bs-row bs-meta">
+        <span class="bs-muted">昵称</span><span id="setName">—</span>
+      </div>
+      <div class="bs-row bs-meta">
+        <span class="bs-muted">账号</span><span id="setLogin">—</span>
+      </div>
+      <div class="bs-row bs-meta">
+        <span class="bs-muted">身份</span><span id="setRole">—</span>
+      </div>
+    </section>
+
+    <section class="bs-panel" style="max-width:760px;margin:0 auto 18px">
+      <h2 class="bs-h">升级状态</h2>
+      <div id="vipStatus" class="vip-status">载入中…</div>
+      <div id="vipDetail" class="vip-detail"></div>
+      <div id="vipActions" class="vip-actions"></div>
+    </section>
+
+  </div>
+
+  <div id="settingsErr" class="bs-panel hidden" style="max-width:760px;margin:0 auto 18px">
+    <div class="bs-empty">状态读取失败，请稍后重试。</div>
+  </div>
+
+</main>
+
+<footer class="bs-footer">
+  <div class="wrap">
+    <span>书栈 BookStation</span><span>·</span>
+    <a href="./">书架</a><span>·</span>
+    <a href="admin/">创作者中心</a>
+  </div>
+</footer>
+
+<script src="assets/bookstation.js"></script>
+<script src="assets/settings.js"></script>
+</body>
+</html>
