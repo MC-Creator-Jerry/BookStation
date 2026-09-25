@@ -33,6 +33,15 @@
 /admin/index.html
   Cache-Control: no-cache, must-revalidate
 
+/settings
+  Cache-Control: no-cache, must-revalidate
+
+/settings/
+  Cache-Control: no-cache, must-revalidate
+
+/settings.html
+  Cache-Control: no-cache, must-revalidate
+
 /404.html
   Cache-Control: no-cache, must-revalidate
 
