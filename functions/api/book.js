@@ -63,6 +63,7 @@ export async function onRequestPut({ env, request }) {
   if ('intro' in body) book.intro = cleanText(body.intro, 4000);
   if ('tags' in body) book.tags = normTags(body.tags);
   if ('status' in body) book.status = body.status === 'done' ? 'done' : 'ongoing';
+  if ('category' in body) book.category = clean(body.category, 20) || '其他';
   book.updatedAt = Date.now();
 
   await putBook(kv, book);
