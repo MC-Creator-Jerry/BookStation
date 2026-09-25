@@ -10,6 +10,7 @@
   --accent: #9a5b2c;
   --accent-soft: #f0e2d2;
   --accent-text: #ffffff;
+  --header-bg: #f4e8ca;
   --danger: #b3402f;
   --ok: #2f7a4f;
   --shadow: 0 1px 2px rgba(60, 45, 30, .06), 0 8px 24px rgba(60, 45, 30, .07);
@@ -30,6 +31,7 @@ html[data-theme="dark"] {
   --accent: #d99a5b;
   --accent-soft: #33291f;
   --accent-text: #1a1207;
+  --header-bg: #1f1a11;
   --danger: #e07b6a;
   --ok: #6ec08d;
   --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .35);
@@ -58,7 +60,7 @@ img { max-width: 100%; display: block; }
 /* ---------- 顶栏 ---------- */
 .bs-header {
   position: sticky; top: 0; z-index: 40;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  background: color-mix(in srgb, var(--header-bg) 90%, transparent);
   backdrop-filter: saturate(140%) blur(10px);
   border-bottom: 1px solid var(--border);
 }
