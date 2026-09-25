@@ -74,11 +74,11 @@
 
       // 行动入口
       if (isVip) {
-        actionsEl.innerHTML = '<p class="hint" style="margin:10px 0 0">在 <a href="admin/">创作者中心</a> 可粘贴续费赞助码延长有效期。</p>';
+        actionsEl.innerHTML = '<p class="hint" style="margin:10px 0 0">在 <a href="redeem.html">兑换页</a> 粘贴续费赞助码即可顺延有效期。</p>';
       } else {
         actionsEl.innerHTML =
           '<a class="bs-btn" href="' + UPGRADE_URL + '" target="_blank" rel="noopener">订阅「书栈·发布功能升级」</a>' +
-          '<p class="hint" style="margin:10px 0 0">付款后在 <a href="admin/">创作者中心</a> 粘贴赞助码即可解锁高级版（每日上限 6 → 16 本）。</p>';
+          '<p class="hint" style="margin:10px 0 0">付款后在 <a href="redeem.html">兑换页</a> 粘贴赞助码即可解锁高级版（每日上限 6 → 16 本）。</p>';
       }
     } catch (e) {
       if (e.status === 401) { show('login'); return; }
