@@ -8,6 +8,12 @@
 
 const INDEX_KEY = 'books:index';
 
+// 书栈「类型（分类）」精选词表（前端 bookstation.js 存有同一份，改动需同步）
+export const CATEGORIES = [
+  '小说', '文学', '诗歌', '散文', '随笔', '科幻', '奇幻', '悬疑', '推理',
+  '历史', '传记', '武侠', '仙侠', '言情', '同人', '漫画', '剧本', '教材', '其他',
+];
+
 export function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status,
