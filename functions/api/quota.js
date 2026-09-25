@@ -19,5 +19,5 @@ export async function onRequestGet({ env, request }) {
   const benefit = await getBenefit(env, s.login, s.sub);
   const used = Number((await env.BOOKSTATION_KV.get(quotaDayKeyFor(s.sub))) || 0);
   const remaining = Math.max(0, benefit.limit - used);
-  return ok({ plan: benefit.plan, limit: benefit.limit, used, remaining });
+  return ok({ plan: benefit.plan, limit: benefit.limit, used, remaining, exp: benefit.exp || null });
 }
