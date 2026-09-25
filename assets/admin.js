@@ -1,6 +1,8 @@
 /* 书栈 · 管理台（登录 + 书籍/章节管理） */
 (function () {
   const $ = function (s) { return document.querySelector(s); };
+  // 「书栈·发布功能升级」爱发电订阅入口（与小蓝页「茶馆·发布功能升级」同一档位，跨站生效）
+  const UPGRADE_URL = 'https://ifdian.net/order/create?plan_id=2927c56ab87911f188a65254001e7c00';
   let books = [];
   let cur = null;          // 当前书籍
   let curChapters = [];     // 当前书籍章节列表
@@ -12,6 +14,30 @@
     $('#panelView').classList.toggle('hidden', view !== 'panel');
   }
 
+  async function refreshQuota() {
+    const box = $('#quotaBox');
+    if (!box) return;
+    box.className = 'quota-box hidden';
+    box.innerHTML = '';
+    try {
+      const q = await BS.api('/quota');
+      if (q.unlimited) {
+        box.className = 'quota-box admin';
+        box.innerHTML = '🛡️ 管理员：上传不限量。';
+      } else if (q.plan === 'pro') {
+        box.className = 'quota-box pro';
+        box.innerHTML = '🌟 高级版 · 今日已发布 ' + q.used + ' / ' + q.limit + ' 本' +
+          (q.remaining > 0 ? '（剩余 ' + q.remaining + '）' : '（已达上限，明天再来）');
+      } else {
+        box.className = 'quota-box free';
+        box.innerHTML = '📖 免费版 · 今日已发布 ' + q.used + ' / ' + q.limit + ' 本 · ' +
+          '<a href="' + UPGRADE_URL + '" target="_blank" rel="noopener">升级高级版（日上限 +10）</a>';
+      }
+    } catch (e) {
+      /* 配额查询失败不阻断管理台 */
+    }
+  }
+
   async function refreshAuth() {
     const state = await BS.me();
     meState = state;
@@ -19,6 +45,7 @@
     if (state.loggedIn) {
       show('panel');
       paintRoleBanner(state);
+      await refreshQuota();
       await loadBooks();
     } else {
       show('login');
@@ -129,6 +156,7 @@
         const d = await BS.api('/books', { method: 'POST', body: payload });
         BS.toast('已新建《' + d.book.title + '》');
         await selectBook(d.book.id);
+        refreshQuota();
       }
     } catch (e) { BS.toast(e.message, true); }
   }
