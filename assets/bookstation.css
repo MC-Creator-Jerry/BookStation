@@ -119,6 +119,7 @@ img { max-width: 100%; display: block; }
 .bs-tag { background: var(--accent-soft); color: var(--accent); border-radius: 6px; padding: 2px 8px; font-size: 12px; }
 .bs-badge { border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; font-size: 12px; color: var(--muted); }
 .bs-badge.done { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, var(--border)); }
+.bs-cat { background: color-mix(in srgb, var(--header-bg) 55%, transparent); color: color-mix(in srgb, var(--accent) 75%, var(--text)); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); border-radius: 6px; padding: 2px 8px; font-size: 12px; }
 
 /* ---------- 书架网格 ---------- */
 .bs-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); margin: 18px 0 40px; }
