@@ -1,5 +1,5 @@
 // GET  /api/books   书架列表（搜索/标签/状态/排序/分页）
-// POST /api/books   新建书籍（管理员）
+// POST /api/books   新建书籍（管理员 / 创作者）
 import {
   ok,
   err,
@@ -13,17 +13,7 @@ import {
   normTags,
 } from '../_lib/store.js';
 import { requireSession, getSession } from '../_lib/auth.js';
-
-// 每日上传上限（防滥用）：创作者每个「北京时间自然日」最多 6 本新书；管理员不限。
-const DAILY_NEW_BOOK_LIMIT = 6;
-function quotaDayKeyFor(sub) {
-  // 用北京时间（UTC+8）的自然日切分，避免跨日歧义
-  const d = new Date(Date.now() + 8 * 3600 * 1000);
-  const day = d.getUTCFullYear() + '-' +
-    String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getUTCDate()).padStart(2, '0');
-  return 'bs_quota:' + day + ':' + (sub || 'anon');
-}
+import { getBenefit, quotaDayKeyFor } from '../_lib/benefit.js';
 
 const SORTS = {
   updated: (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0),
@@ -96,12 +86,16 @@ export async function onRequestPost({ env, request }) {
   const title = clean(body.title, 80);
   if (!title) return err('missing_title', '书名不能为空');
 
-  // 每日上传上限：仅约束创作者（管理员不限）
+  // 每日上传上限：免费版 6 本/天；高级版（订阅「发布功能升级」）16 本/天；管理员不限。
+  // 高级版状态由小蓝页「茶馆·发布功能升级」权益跨站判定（见 _lib/benefit.js）。
+  const benefit = s.role === 'admin' ? { plan: 'admin', limit: Infinity } : await getBenefit(env, s.login, s.sub);
   const quotaKey = s.role !== 'admin' ? quotaDayKeyFor(s.sub) : null;
   if (quotaKey) {
     const used = Number((await env.BOOKSTATION_KV.get(quotaKey)) || 0);
-    if (used >= DAILY_NEW_BOOK_LIMIT) {
-      return err('quota_exceeded', '今日新书上传已达上限（' + DAILY_NEW_BOOK_LIMIT + ' 本/天），请明天再来', 429);
+    if (used >= benefit.limit) {
+      const planLabel = benefit.plan === 'pro' ? '高级版' : '免费版';
+      const msg = '今日新书上传已达上限（' + planLabel + ' ' + (benefit.plan === 'pro' ? benefit.limit : benefit.limit) + ' 本/天），请明天再来';
+      return err('quota_exceeded', msg, 429);
     }
   }
 
@@ -128,10 +122,16 @@ export async function onRequestPost({ env, request }) {
   await writeIndex(env.BOOKSTATION_KV, ids);
 
   // 写入成功后计入当日配额（TTL 2 天，自然过期，无需手动清）
+  let usedAfter = 0;
   if (quotaKey) {
     const used = Number((await env.BOOKSTATION_KV.get(quotaKey)) || 0);
-    await env.BOOKSTATION_KV.put(quotaKey, String(used + 1), { expirationTtl: 2 * 24 * 60 * 60 });
+    usedAfter = used + 1;
+    await env.BOOKSTATION_KV.put(quotaKey, String(usedAfter), { expirationTtl: 2 * 24 * 60 * 60 });
   }
 
-  return ok({ book }, 201);
+  const quota = s.role === 'admin'
+    ? { plan: 'admin', limit: 0, used: 0, remaining: -1 }
+    : { plan: benefit.plan, limit: benefit.limit, used: usedAfter, remaining: Math.max(0, benefit.limit - usedAfter) };
+
+  return ok({ book, quota }, 201);
 }
