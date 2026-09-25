@@ -1,7 +1,7 @@
 /* 书栈 · 管理台（登录 + 书籍/章节管理） */
 (function () {
   const $ = function (s) { return document.querySelector(s); };
-  // 「书栈·发布功能升级」爱发电订阅入口（与小蓝页「茶馆·发布功能升级」同一档位，跨站生效）
+  // 「书栈·发布功能升级」爱发电订阅入口（书栈专属档位，存于书栈自己的 KV，与小蓝页解耦）
   const UPGRADE_URL = 'https://ifdian.net/order/create?plan_id=2927c56ab87911f188a65254001e7c00';
   let books = [];
   let cur = null;          // 当前书籍
@@ -21,13 +21,14 @@
     box.innerHTML = '';
     try {
       const q = await BS.api('/quota');
+      const expStr = q.exp ? '（有效期至 ' + BS.fmtDate(q.exp) + '）' : '';
       if (q.unlimited) {
         box.className = 'quota-box admin';
         box.innerHTML = '🛡️ 管理员：上传不限量。';
       } else if (q.plan === 'pro') {
         box.className = 'quota-box pro';
         box.innerHTML = '🌟 高级版 · 今日已发布 ' + q.used + ' / ' + q.limit + ' 本' +
-          (q.remaining > 0 ? '（剩余 ' + q.remaining + '）' : '（已达上限，明天再来）');
+          (q.remaining > 0 ? '（剩余 ' + q.remaining + '）' : '（已达上限，明天再来）') + expStr;
       } else {
         box.className = 'quota-box free';
         box.innerHTML = '📖 免费版 · 今日已发布 ' + q.used + ' / ' + q.limit + ' 本 · ' +
@@ -42,13 +43,57 @@
     const state = await BS.me();
     meState = state;
     $('#logoutBtn').classList.toggle('hidden', !state.loggedIn);
+    const sb = $('#sponsorBox');
+    const sab = $('#sponsorAdminBox');
     if (state.loggedIn) {
       show('panel');
       paintRoleBanner(state);
       await refreshQuota();
       await loadBooks();
+      if (sb) sb.classList.remove('hidden');
+      if (sab) sab.classList.toggle('hidden', !state.isAdmin);
     } else {
       show('login');
+      if (sb) sb.classList.add('hidden');
+      if (sab) sab.classList.add('hidden');
+    }
+  }
+
+  // 创作者：粘贴赞助码解锁高级版
+  async function doRedeem() {
+    const input = $('#redeemCodeInput');
+    const btn = $('#redeemBtn');
+    const code = (input && input.value || '').trim();
+    if (!code) { BS.toast('请输入赞助码', true); return; }
+    btn.disabled = true;
+    try {
+      const d = await BS.api('/redeem', { method: 'POST', body: { code: code } });
+      BS.toast(d.reason === 'already' ? '你已兑换过该码' : '🎉 已解锁高级版！');
+      input.value = '';
+      await refreshQuota();
+    } catch (e) {
+      BS.toast(e.message || '兑换失败', true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // 管理员：生成一批赞助码
+  async function doGenerateCodes() {
+    const btn = $('#genCodesBtn');
+    const out = $('#genCodesOut');
+    const n = Math.min(500, Math.max(1, parseInt($('#genCount').value, 10) || 20));
+    btn.disabled = true;
+    try {
+      const d = await BS.api('/admin/sponsor-codes?count=' + n);
+      const lines = (d.codes || []).join('\n');
+      out.value = lines + (d.codes && d.codes.length ? '\n\n（以上为一次性码，贴进爱发电「自动随机回复」，用户付款后获取并回书栈兑换）' : '');
+      out.classList.remove('hidden');
+      BS.toast('已生成 ' + (d.count || 0) + ' 个赞助码');
+    } catch (e) {
+      BS.toast(e.message || '生成失败', true);
+    } finally {
+      btn.disabled = false;
     }
   }
 
@@ -283,6 +328,10 @@
     $('#deleteBookBtn').addEventListener('click', askDelete);
     $('#saveChapBtn').addEventListener('click', saveChapter);
     $('#newChapBtn').addEventListener('click', resetChapterEditor);
+    $('#redeemBtn').addEventListener('click', doRedeem);
+    const rci = $('#redeemCodeInput');
+    if (rci) rci.addEventListener('keydown', function (e) { if (e.key === 'Enter') doRedeem(); });
+    $('#genCodesBtn').addEventListener('click', doGenerateCodes);
     refreshAuth();
   });
 })();
