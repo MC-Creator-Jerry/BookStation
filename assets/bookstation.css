@@ -281,3 +281,14 @@ img { max-width: 100%; display: block; }
 .role-banner.creator { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
 .role-banner.admin { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); }
 .owner-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--muted); border-radius: 999px; padding: 2px 8px; margin-left: 8px; }
+
+/* 配额提示框（免费版 / 高级版 / 管理员） */
+.quota-box { margin: 0 auto 18px; max-width: 760px; padding: 10px 16px; border-radius: 10px; font-size: 0.92rem; }
+.quota-box.free { background: var(--card-2); border: 1px solid var(--border); color: var(--muted); }
+.quota-box.pro {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 18%, transparent), color-mix(in srgb, var(--ok) 16%, transparent));
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  color: var(--text); font-weight: 600;
+}
+.quota-box.admin { background: color-mix(in srgb, var(--ok) 14%, transparent); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); color: var(--ok); }
+.quota-box a { color: var(--accent); font-weight: 700; text-decoration: underline; }
