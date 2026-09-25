@@ -53,14 +53,59 @@
       </div>
       <textarea id="genCodesOut" class="bs-textarea hidden" rows="6" readonly style="margin-top:10px;font-family:var(--sans);white-space:pre"></textarea>
     </div>
+    <!-- 创作概览（灵感来自 B 站稿件中心「数据概览」，移植为书栈的作品指标） -->
+    <section class="cc-overview" id="ccOverview" aria-label="创作概览">
+      <div class="cc-card">
+        <div class="cc-card-ico">📚</div>
+        <div class="cc-card-k">作品总数</div>
+        <div class="cc-card-v" id="stTotal">–</div>
+        <div class="cc-card-sub" id="stSplit">连载中 0 · 已完结 0</div>
+      </div>
+      <div class="cc-card">
+        <div class="cc-card-ico">✍️</div>
+        <div class="cc-card-k">总字数</div>
+        <div class="cc-card-v" id="stWords">–</div>
+        <div class="cc-card-sub">累计创作量</div>
+      </div>
+      <div class="cc-card">
+        <div class="cc-card-ico">👁️</div>
+        <div class="cc-card-k">总翻阅</div>
+        <div class="cc-card-v" id="stViews">–</div>
+        <div class="cc-card-sub">读者阅读次数</div>
+      </div>
+      <div class="cc-card">
+        <div class="cc-card-ico">📑</div>
+        <div class="cc-card-k">章节总数</div>
+        <div class="cc-card-v" id="stChaps">–</div>
+        <div class="cc-card-sub">已发布章节</div>
+      </div>
+    </section>
+
     <div class="admin-grid">
       <div class="bs-panel">
-        <div class="bs-row">
-          <strong>书架</strong>
-          <span class="bs-spacer"></span>
+        <div class="cc-toolbar">
           <button class="bs-btn sm" id="newBookBtn" type="button">＋ 新建书</button>
+          <div class="cc-tabs" id="ccTabs">
+            <button class="cc-tab is-on" data-status="">全部 <span class="cc-tab-n" id="tabAll">0</span></button>
+            <button class="cc-tab" data-status="ongoing">连载中 <span class="cc-tab-n" id="tabOngoing">0</span></button>
+            <button class="cc-tab" data-status="done">已完结 <span class="cc-tab-n" id="tabDone">0</span></button>
+          </div>
+          <span class="bs-spacer"></span>
+          <input id="ccSearch" class="bs-input cc-search" type="search" placeholder="搜索书名 / 作者">
+          <select id="ccSort" class="bs-select">
+            <option value="updated">最近更新</option>
+            <option value="created">最新创建</option>
+            <option value="views">最多翻阅</option>
+            <option value="words">最多字数</option>
+            <option value="title">书名</option>
+          </select>
         </div>
-        <ul class="admin-list" id="bookList" style="margin-top:10px"></ul>
+        <div class="cc-batchbar" id="ccBatchBar">
+          <label class="cc-check"><input type="checkbox" id="ccSelectAll"> 全选</label>
+          <button class="bs-btn danger sm" id="ccBatchDel" type="button">批量删除</button>
+          <span class="bs-muted" id="ccSelCount">已选 0 项</span>
+        </div>
+        <ul class="cc-list" id="bookList"></ul>
       </div>
 
       <div>
