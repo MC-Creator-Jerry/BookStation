@@ -86,8 +86,8 @@ export async function onRequestPost({ env, request }) {
   const title = clean(body.title, 80);
   if (!title) return err('missing_title', '书名不能为空');
 
-  // 每日上传上限：免费版 6 本/天；高级版（订阅「发布功能升级」）16 本/天；管理员不限。
-  // 高级版状态由小蓝页「茶馆·发布功能升级」权益跨站判定（见 _lib/benefit.js）。
+  // 每日上传上限：免费版 6 本/天；高级版（订阅书栈专属「发布功能升级」）16 本/天；管理员不限。
+  // 高级版状态由本地 BOOKSTATION_KV 的 bs_sponsor:<login> 判定（见 _lib/benefit.js）。
   const benefit = s.role === 'admin' ? { plan: 'admin', limit: Infinity } : await getBenefit(env, s.login, s.sub);
   const quotaKey = s.role !== 'admin' ? quotaDayKeyFor(s.sub) : null;
   if (quotaKey) {
