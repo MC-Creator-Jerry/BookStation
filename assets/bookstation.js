@@ -137,6 +137,7 @@ window.BS = (function () {
         '<span class="caret">▾</span></button>' +
         '<div class="bs-user-menu" id="bsUserMenu">' +
         '<a href="admin/">📚 我的书</a>' +
+        '<a href="/settings.html">⚙️ 设置</a>' +
         '<a href="#" data-bs-logout>🚪 退出登录</a>' +
         '</div>';
       const pill = $('#bsUserPill');
