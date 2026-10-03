@@ -1,4 +1,4 @@
-/* 书栈 · 设置页（账户 + 升级状态：是否 VIP、到期时间） */
+/* 书栈 · 设置页（账户 + 升级状态：成员类型、到期时间；付费成员 = pro-member） */
 (function () {
   const $ = function (s) { return document.querySelector(s); };
   const UPGRADE_URL = 'https://ifdian.net/order/create?plan_id=2927c56ab87911f188a65254001e7c00';
@@ -33,30 +33,30 @@
     $('#setRole').textContent = roleText(state);
   }
 
-  async function loadVip() {
-    const statusEl = $('#vipStatus');
-    const detailEl = $('#vipDetail');
-    const actionsEl = $('#vipActions');
-    statusEl.className = 'vip-status';
+  async function loadProMember() {
+    const statusEl = $('#promemberStatus');
+    const detailEl = $('#promemberDetail');
+    const actionsEl = $('#promemberActions');
+    statusEl.className = 'promember-status';
     detailEl.innerHTML = '';
     actionsEl.innerHTML = '';
     try {
       const q = await BS.api('/quota');
 
       const isAdmin = !!q.unlimited;
-      const isVip = isAdmin || q.plan === 'pro';
+      const isProMember = isAdmin || q.plan === 'pro';
       const expStr = q.exp ? fmtDateTime(q.exp) : '';
       const expLabel = isAdmin ? '永久有效' : (expStr ? '有效期至 ' + expStr : '—');
 
       // 状态徽标
-      if (isVip) {
-        statusEl.className = 'vip-status is-vip';
+      if (isProMember) {
+        statusEl.className = 'promember-status is-promember';
         statusEl.innerHTML = isAdmin
-          ? '🛡️ 管理员（等同 VIP）'
-          : '🌟 高级版 · VIP 已生效';
+          ? '🛡️ 管理员成员'
+          : '🌟 升级-付费成员（暂时） 已生效';
       } else {
-        statusEl.className = 'vip-status not-vip';
-        statusEl.innerHTML = '📖 免费版 · 未开通 VIP';
+        statusEl.className = 'promember-status not-promember';
+        statusEl.innerHTML = '📖 普通-免费成员';
       }
 
       // 明细
@@ -64,16 +64,18 @@
         ? '上传不限量'
         : '今日已发布 ' + q.used + ' / ' + q.limit + ' 本' +
           (q.remaining > 0 ? '（剩余 ' + q.remaining + '）' : '（已达上限，明天再来）');
+      const openPlan = q.plan === 'pro' ? '书栈·发布功能升级' : '';
       detailEl.innerHTML =
-        '<div class="bs-row bs-meta"><span class="bs-muted">会员类型</span><span>' +
-          (isAdmin ? '管理员' : (q.plan === 'pro' ? '高级版' : '免费版')) + '</span></div>' +
-        '<div class="bs-row bs-meta"><span class="bs-muted">是否 VIP</span><span>' +
-          (isVip ? '是' : '否') + '</span></div>' +
+        '<div class="bs-row bs-meta"><span class="bs-muted">成员类型</span><span>' +
+          (isAdmin ? '管理员成员' : (q.plan === 'pro' ? '升级-付费成员（暂时）' : '普通-免费成员')) + '</span></div>' +
+        '<div class="bs-row bs-meta"><span class="bs-muted">是否 升级-付费成员</span><span>' +
+          (q.plan === 'pro' ? '是' : '否') + '</span></div>' +
+        (openPlan ? '<div class="bs-row bs-meta"><span class="bs-muted">已开通套餐</span><span>' + openPlan + '</span></div>' : '') +
         '<div class="bs-row bs-meta"><span class="bs-muted">到期时间</span><span>' + expLabel + '</span></div>' +
         '<div class="bs-row bs-meta"><span class="bs-muted">每日上传额度</span><span>' + daily + '</span></div>';
 
       // 行动入口
-      if (isVip) {
+      if (isProMember) {
         actionsEl.innerHTML = '<p class="hint" style="margin:10px 0 0">在 <a href="redeem.html">兑换页</a> 粘贴续费赞助码即可顺延有效期。</p>';
       } else {
         actionsEl.innerHTML =
@@ -89,7 +91,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     BS.initTheme();
     BS.me()
-      .then(function (state) { return loadAccount(state).then(loadVip); })
+      .then(function (state) { return loadAccount(state).then(loadProMember); })
       .catch(function () { show('err'); });
     BS.mountAuth();
   });
