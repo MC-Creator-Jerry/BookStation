@@ -115,6 +115,10 @@ export async function onRequestPost({ env, request }) {
     tags: normTags(body.tags),
     category: clean(body.category, 20) || '其他',
     status: body.status === 'done' ? 'done' : 'ongoing',
+    nature: ['original', 'derivative', 'repost'].includes(body.nature) ? body.nature : 'original',
+    lang: body.lang === 'en' ? 'en' : 'zh',
+    source: clean(body.source, 100),
+    allowOriginal: body.allowOriginal === false ? false : true, // 默认开
     owner: s.role === 'admin' ? 'admin' : s.sub, // 创作者归属到自己的小蓝页身份
     createdAt: now,
     updatedAt: now,
