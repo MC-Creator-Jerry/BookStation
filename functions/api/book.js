@@ -64,6 +64,10 @@ export async function onRequestPut({ env, request }) {
   if ('tags' in body) book.tags = normTags(body.tags);
   if ('status' in body) book.status = body.status === 'done' ? 'done' : 'ongoing';
   if ('category' in body) book.category = clean(body.category, 20) || '其他';
+  if ('nature' in body) book.nature = ['original', 'derivative', 'repost'].includes(body.nature) ? body.nature : 'original';
+  if ('lang' in body) book.lang = body.lang === 'en' ? 'en' : 'zh';
+  if ('source' in body) book.source = clean(body.source, 100);
+  if ('allowOriginal' in body) book.allowOriginal = !!body.allowOriginal;
   book.updatedAt = Date.now();
 
   await putBook(kv, book);
