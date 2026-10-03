@@ -76,6 +76,14 @@ export async function requireAdmin(env, request) {
   return err('unauthorized', '需要管理员登录（请通过小蓝页 SSO 以管理员身份进入）', 401);
 }
 
+/** 审核员或管理员放行（role==='admin' | 'reviewer'）；否则 401。
+ *  审核员比普通成员多一项「审核举报/小说」的权限。 */
+export async function requireReviewerOrAdmin(env, request) {
+  const s = await getSession(env, request);
+  if (s && (s.role === 'admin' || s.role === 'reviewer')) return null;
+  return err('unauthorized', '需要审核员或管理员登录（请通过小蓝页 SSO 进入）', 401);
+}
+
 /** 任何已登录会话（admin 或 creator）放行，返回会话对象；否则 401 */
 export async function requireSession(env, request) {
   const s = await getSession(env, request);
