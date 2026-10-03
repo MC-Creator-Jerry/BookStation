@@ -62,13 +62,18 @@ export async function onRequestGet({ env, request }) {
 
   let d = null;
   try {
+    // 密钥走 body，不要走 Authorization header（secret 混入换行时 header 会合法值校验失败）；
+    // IdP 的 token 端点支持 client_secret，行为等价但更抗 secret 污染。
     const r = await fetch(IDP + '/api/sso/token', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: 'Bearer ' + secret,
       },
-      body: JSON.stringify({ code: code, client_id: CLIENT_ID }),
+      body: JSON.stringify({
+        code: code,
+        client_id: CLIENT_ID,
+        client_secret: secret,
+      }),
     });
     const j = await r.json();
     if (r.ok && j && j.ok) d = j;
@@ -78,9 +83,22 @@ export async function onRequestGet({ env, request }) {
 
   if (!d) return redirect('/admin/?sso=token_failed', [clearSsoStateCookie()]);
 
-  // 小蓝页管理员 → 书栈管理员；其余 → 创作者。
-  // 两个分支都存完整档案（sub/login/name/avatar_url）：头像胶囊与管理台欢迎语都要用。
-  const role = d.isAdmin ? 'admin' : 'creator';
+  // 小蓝页管理员 → 书栈管理员；
+  // reviewer:list 中的小蓝页登录名 → 审核员（可进举报处理，不能管全站内容）；
+  // 其余 → 创作者。
+  // 三个分支都存完整档案（sub/login/name/avatar_url）：头像胶囊与管理台欢迎语都要用。
+  let role = 'creator';
+  if (d.isAdmin) {
+    role = 'admin';
+  } else {
+    try {
+      const raw = await kv.get('reviewer:list');
+      if (raw) {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list) && d.login && list.includes(d.login)) role = 'reviewer';
+      }
+    } catch (e) { /* 忽略 */ }
+  }
   const sid = await createSession(
     env,
     {
