@@ -26,29 +26,31 @@
 
   // 渲染会员状态（复用 /quota）
   async function loadStatus() {
-    const statusEl = $('#vipStatus');
-    const detailEl = $('#vipDetail');
-    statusEl.className = 'vip-status';
+    const statusEl = $('#promemberStatus');
+    const detailEl = $('#promemberDetail');
+    statusEl.className = 'promember-status';
     detailEl.innerHTML = '';
     try {
       const q = await BS.api('/quota');
       const isAdmin = !!q.unlimited;
-      const isVip = isAdmin || q.plan === 'pro';
+      const isProMember = isAdmin || q.plan === 'pro';
       const expStr = q.exp ? fmtDateTime(q.exp) : '';
       const expLabel = isAdmin ? '永久有效' : (expStr ? '有效期至 ' + expStr : '—');
 
-      if (isVip) {
-        statusEl.className = 'vip-status is-vip';
-        statusEl.innerHTML = isAdmin ? '🛡️ 管理员（等同 VIP）' : '🌟 高级版 · VIP 已生效';
+      if (isProMember) {
+        statusEl.className = 'promember-status is-promember';
+        statusEl.innerHTML = isAdmin ? '🛡️ 管理员成员' : '🌟 升级-付费成员（暂时） 已生效';
       } else {
-        statusEl.className = 'vip-status not-vip';
-        statusEl.innerHTML = '📖 免费版 · 未开通 VIP';
+        statusEl.className = 'promember-status not-promember';
+        statusEl.innerHTML = '📖 普通-免费成员';
       }
 
+      const openPlan = q.plan === 'pro' ? '书栈·发布功能升级' : '';
       detailEl.innerHTML =
-        '<div class="bs-row bs-meta"><span class="bs-muted">会员类型</span><span>' +
-          (isAdmin ? '管理员' : (q.plan === 'pro' ? '高级版' : '免费版')) + '</span></div>' +
-        '<div class="bs-row bs-meta"><span class="bs-muted">是否 VIP</span><span>' + (isVip ? '是' : '否') + '</span></div>' +
+        '<div class="bs-row bs-meta"><span class="bs-muted">成员类型</span><span>' +
+          (isAdmin ? '管理员成员' : (q.plan === 'pro' ? '升级-付费成员（暂时）' : '普通-免费成员')) + '</span></div>' +
+        '<div class="bs-row bs-meta"><span class="bs-muted">是否 升级-付费成员</span><span>' + (q.plan === 'pro' ? '是' : '否') + '</span></div>' +
+        (openPlan ? '<div class="bs-row bs-meta"><span class="bs-muted">已开通套餐</span><span>' + openPlan + '</span></div>' : '') +
         '<div class="bs-row bs-meta"><span class="bs-muted">到期时间</span><span>' + expLabel + '</span></div>' +
         '<div class="bs-row bs-meta"><span class="bs-muted">每日上传额度</span><span>' +
           (isAdmin ? '上传不限量' : ('今日已发布 ' + q.used + ' / ' + q.limit + ' 本' +
