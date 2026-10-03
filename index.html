@@ -1,22 +1,34 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>书栈 · BookStation</title>
-<meta name="description" content="书栈（BookStation）—— 一个放小说的独立书架。">
-<link rel="icon" href="assets/favicon.svg">
-<link rel="stylesheet" href="assets/bookstation.css">
+<meta name="description" content="书栈（BookStation）—— 一个放小说的独立书架：免费读公版经典与开放授权好书，也能上传你自己的书。">
+<meta property="og:type" content="website" />
+<meta property="og:title" content="书栈 · BookStation" />
+<meta property="og:description" content="书栈（BookStation）—— 一个放小说的独立书架：免费读公版经典与开放授权好书，也能上传你自己的书。" />
+<meta property="og:site_name" content="书栈 BookStation" />
+<meta property="og:url" content="https://jerrybookstation.pages.dev/" />
+<meta property="og:image" content="https://jerrybookstation.pages.dev/assets/favicon.svg?v=20260926" />
+<meta name="theme-color" content="#9a5b2c" />
+<link rel="icon" href="assets/favicon.svg?v=20260926">
+<link rel="stylesheet" href="assets/bookstation.css?v=20261001a">
+<style>
+  .shelf-row { display:flex; gap:14px; overflow-x:auto; padding-bottom:8px; align-items:flex-start; margin-top:14px; }
+  .shelf-row > .bs-card { flex:0 0 168px; }
+</style>
 </head>
 <body data-page="index">
 
 <header class="bs-header">
   <div class="bs-header-inner">
-    <a class="bs-brand" href="./"><img class="bs-mark" src="assets/favicon.svg" alt="书栈">书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
+    <a class="bs-brand" href="/"><img class="bs-mark" src="assets/favicon.svg?v=20260926" alt="书栈">书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
     <nav class="bs-nav">
-      <a href="./" class="is-active">书架</a>
-      <a href="admin/">创作者中心</a>
-      <a href="redeem.html">兑换</a>
+      <a href="/bookshelf" class="is-active" data-i18n="nav.bookshelf">书架</a>
+      <a href="/admin/" data-i18n="nav.creator">创作者中心</a>
+      <a href="/redeem.html" data-i18n="nav.redeem">兑换</a>
+      <button class="bs-icon-btn" data-lang-toggle type="button">EN</button>
       <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">🌙</button>
       <span id="bsAuthBox" class="bs-auth-box"></span>
     </nav>
@@ -25,40 +37,54 @@
 
 <main class="wrap">
   <section class="bs-hero">
-    <h1>书栈</h1>
-    <p>放小说的独立书架 · <span id="count">载入中…</span></p>
+    <h1 data-i18n="hero.title">书栈</h1>
+    <p data-i18n="hero.sub">免费读公版经典与开放授权好书 · 也能上传你自己的书</p>
+    <div class="bs-row" style="margin-top:18px;gap:12px;flex-wrap:wrap">
+      <a class="bs-btn" href="/bookshelf" data-i18n="btn.browse">📚 浏览书架</a>
+      <a class="bs-btn plain" href="/admin/" data-i18n="btn.publish">✍️ 我要投书</a>
+    </div>
   </section>
 
-  <div class="bs-panel">
-    <div class="bs-row">
-      <input id="search" class="bs-input" placeholder="搜书名 / 作者 / 标签 / 简介…" style="flex:1 1 260px">
-      <select id="sort" class="bs-select" title="排序">
-        <option value="updated">最近更新</option>
-        <option value="created">最新入库</option>
-        <option value="views">翻阅最多</option>
-        <option value="words">字数最多</option>
-        <option value="title">按书名</option>
-      </select>
-      <select id="catFilter" class="bs-select" title="按类型筛选">
-        <option value="">全部类型</option>
-      </select>
-      <button class="bs-chip" data-status="ongoing" type="button">连载中</button>
-      <button class="bs-chip" data-status="done" type="button">已完结</button>
+  <section class="bs-panel" style="margin:24px 0">
+    <div class="bs-row"><strong data-i18n="why.title">为什么是书栈</strong></div>
+    <div class="bs-row" style="margin-top:12px;gap:14px;flex-wrap:wrap">
+      <div class="bs-panel" style="flex:1 1 220px;margin:0">
+        <div style="font-size:24px">📜</div>
+        <h3 style="font-family:var(--serif);margin:8px 0 4px" data-i18n="why.classic">公版经典</h3>
+        <p class="hint" style="margin:0" data-i18n="why.classic.desc">名著、科幻、悬疑等公版书，合法免费阅读。</p>
+      </div>
+      <div class="bs-panel" style="flex:1 1 220px;margin:0">
+        <div style="font-size:24px">✍️</div>
+        <h3 style="font-family:var(--serif);margin:8px 0 4px" data-i18n="why.self">自主投书</h3>
+        <p class="hint" style="margin:0" data-i18n="why.self.desc">创作者可上传自己的书，管理章节与更新。</p>
+      </div>
+      <div class="bs-panel" style="flex:1 1 220px;margin:0">
+        <div style="font-size:24px">📱</div>
+        <h3 style="font-family:var(--serif);margin:8px 0 4px" data-i18n="why.device">全设备阅读</h3>
+        <p class="hint" style="margin:0" data-i18n="why.device.desc">网页即读，手机 / 平板 / 电脑都顺手，进度本地保存。</p>
+      </div>
     </div>
-    <div class="bs-row" id="tags" style="margin-top:12px"></div>
-  </div>
+  </section>
 
-  <div class="bs-grid" id="grid"></div>
+  <section style="margin-top:8px">
+    <div class="bs-row"><strong data-i18n="shelf.featured">精选上架</strong><span class="bs-spacer"></span><a class="bs-link" href="/bookshelf" data-i18n="shelf.all">查看全部 →</a></div>
+    <div class="shelf-row" id="grid"></div>
+  </section>
 </main>
 
 <footer class="bs-footer">
-  <div class="wrap">
-    <span>书栈 BookStation</span><span>·</span>
-    <a href="admin/">创作者中心</a><span>·</span>
-    <a href="assets/favicon.svg" target="_blank" rel="noopener">站点图标</a>
-  </div>
+  <div>书栈 · BookStation —— <span data-i18n="footer.motto">一本一本地读。</span></div>
+  <div style="margin-top:6px">© <span id="yr"></span> Jerry · 书栈 · <a href="https://mc-creator-jerry-webpage.pages.dev/" data-i18n="footer.main">小蓝页（主站）</a></div>
 </footer>
 
-<script src="assets/bookstation.js"></script>
+<script src="assets/lang.js?v=20261001a"></script>
+<script src="assets/bookstation.js?v=20261001a"></script>
+
+  <!-- 左下角：前往小蓝页主站（仿新闻站） -->
+  <a class="back-main" href="https://mc-creator-jerry-webpage.pages.dev/" target="_self" title="前往小蓝页主站">⬅ 前往小蓝页</a>
 </body>
 </html>
+
+
+
+
