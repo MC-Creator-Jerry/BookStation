@@ -1,21 +1,22 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>书籍 · 书栈</title>
-<link rel="icon" href="assets/favicon.svg">
-<link rel="stylesheet" href="assets/bookstation.css">
+<link rel="icon" href="assets/favicon.svg?v=20260926">
+<link rel="stylesheet" href="assets/bookstation.css?v=20261001a">
 </head>
 <body data-page="book">
 
 <header class="bs-header">
   <div class="bs-header-inner">
-    <a class="bs-brand" href="./"><img class="bs-mark" src="assets/favicon.svg" alt="书栈">书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
+    <a class="bs-brand" href="/bookshelf"><img class="bs-mark" src="assets/favicon.svg?v=20260926" alt="书栈">书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
     <nav class="bs-nav">
-      <a href="./">书架</a>
-      <a href="admin/">创作者中心</a>
-      <a href="redeem.html">兑换</a>
+      <a href="/bookshelf" data-i18n="nav.bookshelf">书架</a>
+      <a href="admin/" data-i18n="nav.creator">创作者中心</a>
+      <a href="redeem.html" data-i18n="nav.redeem">兑换</a>
+      <button class="bs-icon-btn" data-lang-toggle type="button">EN</button>
       <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">🌙</button>
       <span id="bsAuthBox" class="bs-auth-box"></span>
     </nav>
@@ -27,9 +28,16 @@
 </main>
 
 <footer class="bs-footer">
-  <div class="wrap"><span>书栈 BookStation</span><span>·</span><a href="./">返回书架</a></div>
+  <div>书栈 · BookStation —— <span data-i18n="footer.motto">一本一本地读。</span></div>
+  <div style="margin-top:6px">© <span id="yr"></span> Jerry · 书栈 · <a href="https://mc-creator-jerry-webpage.pages.dev/" data-i18n="footer.main">小蓝页（主站）</a></div>
 </footer>
 
-<script src="assets/bookstation.js"></script>
+<script src="assets/lang.js?v=20261001a"></script>
+<script src="assets/bookstation.js?v=20261001a"></script>
+  <script src="/assets/scroll-keys.js?v=20260926c" defer></script>
 </body>
 </html>
+
+
+
+
