@@ -1,22 +1,23 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>管理台 · 书栈</title>
+<title>创作中心 · 书栈</title>
 <meta name="robots" content="noindex,nofollow">
-<link rel="icon" href="../assets/favicon.svg">
-<link rel="stylesheet" href="../assets/bookstation.css">
+<link rel="icon" href="../assets/favicon.svg?v=20260926">
+<link rel="stylesheet" href="../assets/bookstation.css?v=20261001a">
 </head>
 <body data-page="admin">
 
 <header class="bs-header">
   <div class="bs-header-inner">
-    <a class="bs-brand" href="../"><img class="bs-mark" src="../assets/favicon.svg" alt="书栈">书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
+    <a class="bs-brand" href="/bookshelf"><img class="bs-mark" src="../assets/favicon.svg?v=20260926" alt="书栈">书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
     <nav class="bs-nav">
-      <a href="../">书架</a>
-      <a href="./" class="is-active">创作者中心</a>
-      <a href="../redeem.html">兑换</a>
+      <a href="/bookshelf" data-i18n="nav.bookshelf">书架</a>
+      <a href="./" class="is-active" data-i18n="nav.creator">创作者中心</a>
+      <a href="../redeem.html" data-i18n="nav.redeem">兑换</a>
+      <button class="bs-icon-btn" data-lang-toggle type="button">EN</button>
       <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">🌙</button>
       <span id="bsAuthBox" class="bs-auth-box"></span>
     </nav>
@@ -34,156 +35,283 @@
   </section>
 
   <section id="panelView" class="hidden">
-    <div id="roleBanner" class="role-banner" style="display:none"></div>
-    <div id="quotaBox" class="quota-box hidden"></div>
-    <div id="sponsorBox" class="bs-panel hidden" style="max-width:760px;margin:0 auto 18px">
-      <strong>书栈·发布功能升级</strong>
-      <p class="hint" style="margin:8px 0">订阅后在此粘贴赞助码即可解锁「🌟 高级版」（每日上传上限 6 → 16 本）。还没有码？<a href="https://ifdian.net/order/create?plan_id=2927c56ab87911f188a65254001e7c00" target="_blank" rel="noopener">去爱发电订阅</a></p>
-      <div class="bs-row">
-        <input id="redeemCodeInput" class="bs-input" placeholder="输入赞助码，如 ABCD-1234" style="flex:1 1 200px" maxlength="16" autocomplete="off">
-        <button class="bs-btn sm" id="redeemBtn" type="button">兑换</button>
-      </div>
-    </div>
-    <div id="sponsorAdminBox" class="bs-panel hidden" data-bs-admin style="max-width:760px;margin:0 auto 18px">
-      <strong>赞助码管理（仅管理员）</strong>
-      <p class="hint" style="margin:8px 0">生成一批「书栈·发布功能升级」兑换码，贴进爱发电对应套餐的「自动随机回复」。用户付款后拿到码，回书栈兑换即绑定。明文码仅显示一次。</p>
-      <div class="bs-row">
-        <input id="genCount" class="bs-input" type="number" min="1" max="500" value="20" style="flex:0 0 100px">
-        <button class="bs-btn sm" id="genCodesBtn" type="button">生成赞助码</button>
-      </div>
-      <textarea id="genCodesOut" class="bs-textarea hidden" rows="6" readonly style="margin-top:10px;font-family:var(--sans);white-space:pre"></textarea>
-    </div>
-    <!-- 创作概览（灵感来自 B 站稿件中心「数据概览」，移植为书栈的作品指标） -->
-    <section class="cc-overview" id="ccOverview" aria-label="创作概览">
-      <div class="cc-card">
-        <div class="cc-card-ico">📚</div>
-        <div class="cc-card-k">作品总数</div>
-        <div class="cc-card-v" id="stTotal">–</div>
-        <div class="cc-card-sub" id="stSplit">连载中 0 · 已完结 0</div>
-      </div>
-      <div class="cc-card">
-        <div class="cc-card-ico">✍️</div>
-        <div class="cc-card-k">总字数</div>
-        <div class="cc-card-v" id="stWords">–</div>
-        <div class="cc-card-sub">累计创作量</div>
-      </div>
-      <div class="cc-card">
-        <div class="cc-card-ico">👁️</div>
-        <div class="cc-card-k">总翻阅</div>
-        <div class="cc-card-v" id="stViews">–</div>
-        <div class="cc-card-sub">读者阅读次数</div>
-      </div>
-      <div class="cc-card">
-        <div class="cc-card-ico">📑</div>
-        <div class="cc-card-k">章节总数</div>
-        <div class="cc-card-v" id="stChaps">–</div>
-        <div class="cc-card-sub">已发布章节</div>
-      </div>
-    </section>
+    <div class="cc-layout">
 
-    <div class="admin-grid">
-      <div class="bs-panel">
-        <div class="cc-toolbar">
-          <button class="bs-btn sm" id="newBookBtn" type="button">＋ 新建书</button>
-          <div class="cc-tabs" id="ccTabs">
-            <button class="cc-tab is-on" data-status="">全部 <span class="cc-tab-n" id="tabAll">0</span></button>
-            <button class="cc-tab" data-status="ongoing">连载中 <span class="cc-tab-n" id="tabOngoing">0</span></button>
-            <button class="cc-tab" data-status="done">已完结 <span class="cc-tab-n" id="tabDone">0</span></button>
-          </div>
-          <span class="bs-spacer"></span>
-          <input id="ccSearch" class="bs-input cc-search" type="search" placeholder="搜索书名 / 作者">
-          <select id="ccCategory" class="bs-select" title="按类型筛选">
-            <option value="">全部类型</option>
-          </select>
-          <select id="ccSort" class="bs-select">
-            <option value="updated">最近更新</option>
-            <option value="created">最新创建</option>
-            <option value="views">最多翻阅</option>
-            <option value="words">最多字数</option>
-            <option value="title">书名</option>
-          </select>
-        </div>
-        <div class="cc-batchbar" id="ccBatchBar">
-          <label class="cc-check"><input type="checkbox" id="ccSelectAll"> 全选</label>
-          <button class="bs-btn danger sm" id="ccBatchDel" type="button">批量删除</button>
-          <span class="bs-muted" id="ccSelCount">已选 0 项</span>
-        </div>
-        <ul class="cc-list" id="bookList"></ul>
-      </div>
+      <aside class="cc-side" aria-label="创作中心导航">
+        <button class="cc-post-btn" id="newBookBtn" type="button">📖 投书</button>
+        <nav class="cc-side-nav">
+          <button class="cc-nav-item is-on" data-view="overview" type="button">🏠 总览</button>
+          <button class="cc-nav-item" data-view="books" type="button">📚 我的书</button>
+          <button class="cc-nav-item" data-view="sponsor" type="button">🎫 赞助码</button>
+          <button class="cc-nav-item" data-view="reports" type="button" data-bs-admin>🛡️ 管理</button>
+        </nav>
+        <p class="cc-side-hint">「投书」用于新建或修改你的书与章节。</p>
+      </aside>
 
-      <div>
-        <div class="bs-panel" id="tabBook">
-          <div class="bs-row">
-            <strong id="bookFormTitle">新建书籍</strong>
-            <span class="bs-spacer"></span>
-            <button class="bs-btn danger sm hidden" id="deleteBookBtn" type="button">删除这本书</button>
-            <button class="bs-btn sm" id="saveBookBtn" type="button">保存</button>
-          </div>
-          <input type="hidden" id="bookId">
+      <div class="cc-main">
+        <div id="delBox" class="hidden cc-delbox"></div>
 
-          <div class="field" style="margin-top:12px">
-            <label for="fTitle">书名</label>
-            <input id="fTitle" class="bs-input" placeholder="例：长夜行">
-          </div>
-          <div class="bs-row">
-            <div class="field" style="flex:1 1 160px">
-              <label for="fAuthor">作者</label>
-              <input id="fAuthor" class="bs-input" placeholder="佚名">
+        <!-- 总览：角色 / 配额 / 创作概览 -->
+        <section id="viewOverview">
+          <div id="roleBanner" class="role-banner" style="display:none"></div>
+          <div id="quotaBox" class="quota-box hidden"></div>
+          <section class="cc-overview" id="ccOverview" aria-label="创作概览">
+            <div class="cc-card">
+              <div class="cc-card-ico">📚</div>
+              <div class="cc-card-k">作品总数</div>
+              <div class="cc-card-v" id="stTotal">–</div>
+              <div class="cc-card-sub" id="stSplit">连载中 0 · 已完结 0</div>
             </div>
-            <div class="field" style="flex:0 0 140px">
-              <label for="fStatus">状态</label>
-              <select id="fStatus" class="bs-select">
-                <option value="ongoing">连载中</option>
-                <option value="done">已完结</option>
+            <div class="cc-card">
+              <div class="cc-card-ico">✍️</div>
+              <div class="cc-card-k">总字数</div>
+              <div class="cc-card-v" id="stWords">–</div>
+              <div class="cc-card-sub">累计创作量</div>
+            </div>
+            <div class="cc-card">
+              <div class="cc-card-ico">👁️</div>
+              <div class="cc-card-k">总翻阅</div>
+              <div class="cc-card-v" id="stViews">–</div>
+              <div class="cc-card-sub">读者阅读次数</div>
+            </div>
+            <div class="cc-card">
+              <div class="cc-card-ico">📑</div>
+              <div class="cc-card-k">章节总数</div>
+              <div class="cc-card-v" id="stChaps">–</div>
+              <div class="cc-card-sub">已发布章节</div>
+            </div>
+          </section>
+          <p class="hint" style="margin:4px 2px 0">在左侧选择「我的书」管理作品；点「📖 投书」开始一本新书。</p>
+        </section>
+
+        <!-- 我的书：状态 tabs / 搜索 / 筛选排序 / 批量 -->
+        <section id="viewBooks" class="hidden">
+          <div class="bs-panel">
+            <div class="cc-toolbar">
+              <div class="cc-tabs" id="ccTabs">
+                <button class="cc-tab is-on" data-status="">全部 <span class="cc-tab-n" id="tabAll">0</span></button>
+                <button class="cc-tab" data-status="ongoing">连载中 <span class="cc-tab-n" id="tabOngoing">0</span></button>
+                <button class="cc-tab" data-status="done">已完结 <span class="cc-tab-n" id="tabDone">0</span></button>
+              </div>
+              <span class="bs-spacer"></span>
+              <input id="ccSearch" class="bs-input cc-search" type="search" placeholder="搜索书名 / 作者">
+              <select id="ccCategory" class="bs-select" title="按类型筛选">
+                <option value="">全部类型</option>
+              </select>
+              <select id="ccSort" class="bs-select">
+                <option value="updated">最近更新</option>
+                <option value="created">最新创建</option>
+                <option value="views">最多翻阅</option>
+                <option value="words">最多字数</option>
+                <option value="title">书名</option>
               </select>
             </div>
-            <div class="field" style="flex:0 0 150px">
-              <label for="fCategory">类型</label>
-              <select id="fCategory" class="bs-select"></select>
+            <div class="cc-batchbar" id="ccBatchBar">
+              <label class="cc-check"><input type="checkbox" id="ccSelectAll"> 全选</label>
+              <button class="bs-btn danger sm" id="ccBatchDel" type="button">批量删除</button>
+              <span class="bs-muted" id="ccSelCount">已选 0 项</span>
             </div>
+            <ul class="cc-list" id="bookList"></ul>
           </div>
-          <div class="field">
-            <label for="fTags">标签（用「、」或逗号分隔，最多 8 个）</label>
-            <input id="fTags" class="bs-input" placeholder="玄幻、都市、悬疑">
-          </div>
-          <div class="field">
-            <label for="fCover">封面图 URL（留空则自动生成文字封面）</label>
-            <input id="fCover" class="bs-input" placeholder="https://...">
-          </div>
-          <div class="field">
-            <label for="fIntro">简介</label>
-            <textarea id="fIntro" class="bs-textarea" rows="4" placeholder="一句话简介或几百字的作品简介…"></textarea>
-          </div>
-          <p class="hint">本站为「外链模式」：只存封面图片网址，不托管图片文件，零存储成本。</p>
-        </div>
+        </section>
 
-        <div id="delBox" class="hidden" style="margin-top:14px"></div>
-
-        <div class="bs-panel hidden" id="chapArea" style="margin-top:16px">
-          <div class="bs-row">
-            <strong>章节</strong>
-            <span class="bs-spacer"></span>
-            <span class="hint">拖动不改顺序，用 ↑ ↓ 调整</span>
-            <button class="bs-btn plain sm" id="newChapBtn" type="button">＋ 新增章节</button>
-          </div>
-          <div id="chapList" style="margin-top:10px"></div>
-
-          <div class="bs-panel" style="margin-top:16px;background:var(--card-2)">
-            <strong id="chapEditorTitle">新增章节</strong>
-            <div class="field" style="margin-top:10px">
-              <label for="cTitle">章节名（留空自动编号）</label>
-              <input id="cTitle" class="bs-input" placeholder="第一章 夜里的灯">
+        <!-- 投书 / 编辑：书籍表单 + 章节编辑 -->
+        <section id="viewCompose" class="hidden">
+          <div class="bs-panel" id="tabBook" style="max-width:760px;margin:0 auto">
+            <div class="bs-row">
+              <strong id="bookFormTitle">新建书籍</strong>
+              <span class="bs-spacer"></span>
+              <button class="bs-btn danger sm hidden" id="deleteBookBtn" type="button">删除这本书</button>
+              <button class="bs-btn sm" id="saveBookBtn" type="button">保存</button>
             </div>
-            <div class="field">
-              <label for="cBody">正文（纯文本：空行分段；行首 &gt; 为引用；--- 为分隔线）</label>
-              <textarea id="cBody" class="bs-textarea" rows="14" placeholder="把正文粘进来即可，单章上限约 20 万字。"></textarea>
+            <input type="hidden" id="bookId">
+
+            <div class="field" style="margin-top:12px">
+              <label for="fTitle">书名</label>
+              <input id="fTitle" class="bs-input" placeholder="例：长夜行">
             </div>
             <div class="bs-row">
-              <button class="bs-btn" id="saveChapBtn" type="button">保存章节</button>
-              <span class="hint">正文按纯文本渲染并自动转义 HTML，不会执行任何脚本。</span>
+              <div class="field" style="flex:1 1 160px">
+                <label for="fAuthor">作者</label>
+                <input id="fAuthor" class="bs-input" placeholder="佚名">
+              </div>
+              <div class="field" style="flex:0 0 140px">
+                <label for="fStatus">状态</label>
+                <select id="fStatus" class="bs-select">
+                  <option value="ongoing">连载中</option>
+                  <option value="done">已完结</option>
+                </select>
+              </div>
+              <div class="field" style="flex:0 0 150px">
+                <label for="fCategory">类型</label>
+                <select id="fCategory" class="bs-select"></select>
+              </div>
+            </div>
+            <div class="bs-row" style="margin-top:12px">
+              <div class="field" style="flex:0 0 150px">
+                <label for="fNature">作品性质</label>
+                <select id="fNature" class="bs-select">
+                  <option value="original">原创</option>
+                  <option value="derivative">二创</option>
+                  <option value="repost">搬运</option>
+                </select>
+              </div>
+              <div class="field" style="flex:0 0 150px">
+                <label for="fLang" data-i18n="book.lang">语言</label>
+                <select id="fLang" class="bs-select">
+                  <option value="zh">中文</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+              <div class="field" style="flex:1 1 200px" id="fSourceField">
+                <label for="fSource">原作 / 出处（二创、搬运请填写）</label>
+                <input id="fSource" class="bs-input" placeholder="如：原作者 / 来源书名或链接">
+              </div>
+            </div>
+            <label class="bs-checkbox" style="margin-top:10px">
+              <input id="fAllowOriginal" type="checkbox" checked>
+              <span>允许阅读者查看原文件（你上传的文件；关闭则只提供本站整理后的章节）</span>
+            </label>
+            <div class="field">
+              <label for="fTags">标签（用「、」或逗号分隔，最多 8 个）</label>
+              <input id="fTags" class="bs-input" placeholder="玄幻、都市、悬疑">
+            </div>
+            <div class="field">
+              <label for="fCover">封面图 URL（留空则自动生成文字封面）</label>
+              <input id="fCover" class="bs-input" placeholder="https://...">
+            </div>
+            <div class="field">
+              <label for="fIntro">简介</label>
+              <textarea id="fIntro" class="bs-textarea" rows="4" placeholder="一句话简介或几百字的作品简介…"></textarea>
+            </div>
+            <p class="hint">本站为「外链模式」：只存封面图片网址，不托管图片文件，零存储成本。</p>
+          </div>
+
+          <div class="bs-panel" id="importCard" style="max-width:760px;margin:16px auto 0">
+            <div class="bs-row">
+              <strong>📂 从本地导入书籍</strong>
+              <span class="bs-spacer"></span>
+              <span class="hint">支持 .txt / .md / .docx / .pdf / .epub / .fb2(.zip) / .rtf / .mobi(.azw/.azw3/.prc)；按文件头真实类型识别（扩展名不符也能解析）；扫描版/图片型 PDF 暂不支持（无文字）</span>
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label for="impFiles">选择文件（可多选：每个文件当作一章；单文件则自动按章节标题拆分）</label>
+              <input id="impFiles" type="file" accept=".txt,.md,.docx,.pdf,.epub,.fb2,.fb2.zip,.rtf,.mobi,.azw,.azw3,.prc" multiple>
+            </div>
+            <div class="bs-row" style="align-items:flex-end;gap:12px;flex-wrap:wrap">
+              <div class="field" style="flex:1 1 220px;margin:0">
+                <label for="impMode">拆分方式</label>
+                <select id="impMode" class="bs-select">
+                  <option value="auto">自动分章（识别「第X章/回/节/卷」等）</option>
+                  <option value="perfile">每个文件一章（用文件名做标题）</option>
+                  <option value="sep">按分隔符拆分</option>
+                </select>
+              </div>
+              <div class="field hidden" id="impSepField" style="flex:1 1 160px;margin:0">
+                <label for="impSep">分隔符</label>
+                <input id="impSep" class="bs-input" placeholder="如：---  或  第">
+              </div>
+            </div>
+            <div id="impPreview" class="hint" style="margin-top:8px"></div>
+            <div class="bs-row" style="margin-top:8px">
+              <button class="bs-btn" id="impBtn" type="button">解析并导入</button>
+              <button class="bs-btn plain" id="impClear" type="button">清除选择</button>
+              <span id="impProgress" class="bs-muted"></span>
+            </div>
+            <p class="hint" style="margin:8px 0 0">导入会在「保存书籍」之后，把解析出的章节追加到本书；已有的章节会保留。单章上限约 20 万字，整本最多 2000 章。</p>
+          </div>
+
+          <div class="bs-panel hidden" id="chapArea" style="max-width:760px;margin:16px auto 0">
+            <div class="bs-row">
+              <strong>章节</strong>
+              <span class="bs-spacer"></span>
+              <span class="hint">拖动不改顺序，用 ↑ ↓ 调整</span>
+              <button class="bs-btn plain sm" id="newChapBtn" type="button">＋ 新增章节</button>
+            </div>
+            <div id="chapList" style="margin-top:10px"></div>
+
+            <div class="bs-panel" style="margin-top:16px;background:var(--card-2)">
+              <strong id="chapEditorTitle">新增章节</strong>
+              <div class="field" style="margin-top:10px">
+                <label for="cTitle">章节名（留空自动编号）</label>
+                <input id="cTitle" class="bs-input" placeholder="第一章 夜里的灯">
+              </div>
+              <div class="field">
+                <label for="cBody">正文（纯文本：空行分段；行首 &gt; 为引用；--- 为分隔线）</label>
+                <textarea id="cBody" class="bs-textarea" rows="14" placeholder="把正文粘进来即可，单章上限约 20 万字。"></textarea>
+              </div>
+              <div class="bs-row">
+                <button class="bs-btn" id="saveChapBtn" type="button">保存章节</button>
+                <span class="hint">正文按纯文本渲染并自动转义 HTML，不会执行任何脚本。</span>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <!-- 赞助码：兑换（创作者）/ 生成（管理员） -->
+        <section id="viewSponsor" class="hidden">
+          <div id="sponsorBox" class="bs-panel" style="max-width:760px;margin:0 auto 18px">
+            <strong>书栈·发布功能升级</strong>
+            <p class="hint" style="margin:8px 0">订阅后在此粘贴赞助码即可解锁「🌟 高级版」（每日上传上限 6 → 16 本）。还没有码？<a href="https://ifdian.net/order/create?plan_id=2927c56ab87911f188a65254001e7c00" target="_blank" rel="noopener">去爱发电订阅</a></p>
+            <div class="bs-row">
+              <input id="redeemCodeInput" class="bs-input" placeholder="输入赞助码，如 ABCD-1234" style="flex:1 1 200px" maxlength="16" autocomplete="off">
+              <button class="bs-btn sm" id="redeemBtn" type="button">兑换</button>
+            </div>
+          </div>
+          <div id="sponsorAdminBox" class="bs-panel hidden" data-bs-admin style="max-width:760px;margin:0 auto 18px">
+            <strong>赞助码管理（仅管理员）</strong>
+            <p class="hint" style="margin:8px 0">生成一批「书栈·发布功能升级」兑换码，贴进爱发电对应套餐的「自动随机回复」。用户付款后拿到码，回书栈兑换即绑定。明文码仅显示一次。</p>
+            <div class="bs-row">
+              <input id="genCount" class="bs-input" type="number" min="1" max="500" value="20" style="flex:0 0 100px">
+              <button class="bs-btn sm" id="genCodesBtn" type="button">生成赞助码</button>
+            </div>
+            <textarea id="genCodesOut" class="bs-textarea hidden" rows="6" readonly style="margin-top:10px;font-family:var(--sans);white-space:pre"></textarea>
+          </div>
+        </section>
+
+        <!-- 管理员面板：仅管理员可见（举报处理 + 全站内容管理） -->
+        <section id="viewReports" class="hidden">
+          <div class="bs-panel" style="max-width:960px;margin:0 auto">
+            <div class="bs-row"><strong>🛡️ 管理员面板</strong><span class="bs-spacer"></span><span class="bs-muted" id="rpCount"></span></div>
+
+            <!-- 站点概览 -->
+            <div class="cc-overview" id="adminStats" aria-label="全站概览" style="margin:12px 0">
+              <div class="cc-card"><div class="cc-card-ico">📚</div><div class="cc-card-v" id="stBooks">–</div><div class="cc-card-sub">全站书籍</div></div>
+              <div class="cc-card"><div class="cc-card-ico">👁️</div><div class="cc-card-v" id="stViews2">–</div><div class="cc-card-sub">总翻阅</div></div>
+              <div class="cc-card"><div class="cc-card-ico">✍️</div><div class="cc-card-v" id="stCreators">–</div><div class="cc-card-sub">创作者</div></div>
+              <div class="cc-card"><div class="cc-card-ico">🚩</div><div class="cc-card-v" id="stPending">–</div><div class="cc-card-sub">待处理举报</div></div>
+            </div>
+
+            <!-- 分区切换 -->
+            <div class="cc-tabs" id="adminTabs" role="group" aria-label="管理分区">
+              <button type="button" class="cc-tab is-on" data-atab="reports">举报处理</button>
+              <button type="button" class="cc-tab" data-atab="content">全站内容</button>
+            </div>
+
+            <!-- 举报处理 -->
+            <div id="adminReports">
+              <div class="bs-row" style="margin:4px 0 8px">
+                <div class="cc-tabs" id="rpFilter" role="group">
+                  <button type="button" class="cc-tab is-on" data-f="all">全部</button>
+                  <button type="button" class="cc-tab" data-f="pending">待处理</button>
+                  <button type="button" class="cc-tab" data-f="resolved">已处理</button>
+                  <button type="button" class="cc-tab" data-f="dismissed">已忽略</button>
+                </div>
+              </div>
+              <div id="rpList"></div>
+            </div>
+
+            <!-- 全站内容（管理员审核 / 删除任意书籍） -->
+            <div id="adminContent" class="hidden">
+              <div class="bs-row" style="margin:8px 0">
+                <input id="adminSearch" class="bs-input cc-search" type="search" placeholder="搜索书名 / 作者">
+                <span class="bs-spacer"></span>
+                <span class="bs-muted" id="adminBookCount"></span>
+              </div>
+              <ul class="cc-list" id="adminBookList"></ul>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
   </section>
@@ -191,10 +319,17 @@
 </main>
 
 <footer class="bs-footer">
-  <div class="wrap"><span>书栈 BookStation · 管理台</span><span>·</span><a href="../">返回书架</a></div>
+  <div>书栈 · BookStation —— <span data-i18n="footer.motto">一本一本地读。</span></div>
+  <div style="margin-top:6px">© <span id="yr"></span> Jerry · 书栈 · <a href="https://mc-creator-jerry-webpage.pages.dev/" data-i18n="footer.main">小蓝页（主站）</a></div>
 </footer>
 
-<script src="../assets/bookstation.js"></script>
-<script src="../assets/admin.js"></script>
+<script src="../assets/lang.js?v=20261001a"></script>
+<script src="../assets/bookstation.js?v=20261001a"></script>
+<script src="../assets/admin.js?v=2026092902"></script>
+  <script src="/assets/scroll-keys.js?v=20260926c" defer></script>
 </body>
 </html>
+
+
+
+
