@@ -105,6 +105,9 @@
 
     BS.saveProgress(b.id, { c: ch.id, title: ch.title, no: ch.no });
 
+    BS.initChapterInteractions(b.id, ch.id);
+    BS.initReportDecision();
+
     if (keepScroll) {
       const key = 'bs_scroll:' + b.id + ':' + ch.id;
       const y = Number(sessionStorage.getItem(key) || 0);
@@ -141,8 +144,9 @@
 
     document.addEventListener('keydown', function (e) {
       if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
-      if (e.key === 'ArrowRight' || e.key === 'PageDown') { go(1); }
-      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(-1); }
+      // 上下方向键 / PageUp / PageDown：保持浏览器默认的页面滚动，不拦截
+      if (e.key === 'ArrowRight') { go(1); }       // 右：下一章
+      else if (e.key === 'ArrowLeft') { go(-1); }  // 左：上一章
       else if (e.key === 'Escape') { openDrawer(false); }
     });
   });
