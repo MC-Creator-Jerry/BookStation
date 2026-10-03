@@ -14,10 +14,12 @@ export async function onRequestGet({ env, request }) {
         sub: s.sub || null,
       }
     : null;
+  const role = s ? s.role : null;
   return ok({
     loggedIn: !!s,
-    role: s ? s.role : null,
-    isAdmin: s ? s.role === 'admin' : false,
+    role: role,
+    isAdmin: role === 'admin',
+    isReviewer: role === 'admin' || role === 'reviewer',
     user,
     site: 'jerrybookstation',
   });
