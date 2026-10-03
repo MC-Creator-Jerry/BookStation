@@ -3,6 +3,8 @@
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; font-src 'self' https: data:; connect-src 'self'; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
 
 # HTML 一律不缓存：Pages 默认给静态 HTML 打 s-maxage=604800（7 天），
 # 且缓存键忽略 query string（?cb= 反缓存无效），改版后会长期看到旧页面。
@@ -16,6 +18,12 @@
   Cache-Control: no-cache, must-revalidate
 
 /book.html
+  Cache-Control: no-cache, must-revalidate
+
+/bookshelf
+  Cache-Control: no-cache, must-revalidate
+
+/bookshelf.html
   Cache-Control: no-cache, must-revalidate
 
 /read
@@ -55,4 +63,4 @@
   Cache-Control: no-cache, must-revalidate
 
 /assets/*
-  Cache-Control: no-cache, must-revalidate
+  Cache-Control: public, max-age=31536000, immutable
