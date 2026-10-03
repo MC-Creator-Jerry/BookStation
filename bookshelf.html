@@ -1,0 +1,76 @@
+﻿<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>书架 · 书栈</title>
+<meta name="description" content="书栈（BookStation）—— 一个放小说的独立书架。">
+<meta property="og:type" content="website" />
+<meta property="og:title" content="书架 · 书栈 BookStation" />
+<meta property="og:site_name" content="书栈 BookStation" />
+<meta property="og:url" content="https://jerrybookstation.pages.dev/bookshelf" />
+<meta property="og:image" content="https://jerrybookstation.pages.dev/assets/favicon.svg?v=20260926" />
+<meta name="theme-color" content="#9a5b2c" />
+<link rel="icon" href="assets/favicon.svg?v=20260926">
+<link rel="stylesheet" href="assets/bookstation.css?v=20261001a">
+</head>
+<body data-page="bookshelf">
+
+<header class="bs-header">
+  <div class="bs-header-inner">
+    <a class="bs-brand" href="/"><img class="bs-mark" src="assets/favicon.svg?v=20260926" alt="书栈">书栈<span class="bs-brand-sub">BOOKSTATION</span></a>
+    <nav class="bs-nav">
+      <a href="/bookshelf" class="is-active" data-i18n="nav.bookshelf">书架</a>
+      <a href="/admin/" data-i18n="nav.creator">创作者中心</a>
+      <a href="/redeem.html" data-i18n="nav.redeem">兑换</a>
+      <button class="bs-icon-btn" data-lang-toggle type="button">EN</button>
+      <button class="bs-icon-btn" id="themeBtn" title="切换明暗" type="button">🌙</button>
+      <span id="bsAuthBox" class="bs-auth-box"></span>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="bs-hero">
+    <h1>书架</h1>
+    <p>放小说的独立书架 · <span id="count">载入中…</span></p>
+  </section>
+
+  <div class="bs-panel">
+    <div class="bs-row">
+      <input id="search" class="bs-input" placeholder="搜书名 / 作者 / 标签 / 简介…" style="flex:1 1 260px">
+      <select id="catFilter" class="bs-select" title="按类型筛选">
+        <option value="">全部类型</option>
+      </select>
+      <span class="bs-spacer"></span>
+      <div class="cc-tabs" id="sortTabs" role="group" aria-label="排序方式">
+        <button type="button" class="cc-tab is-on" data-sort="updated">最近更新</button>
+        <button type="button" class="cc-tab" data-sort="created">最新发布</button>
+        <button type="button" class="cc-tab" data-sort="views">浏览最多</button>
+        <button type="button" class="cc-tab" data-sort="words">字数最多</button>
+        <button type="button" class="cc-tab" data-sort="title">书名</button>
+      </div>
+    </div>
+    <div class="bs-row" style="margin-top:10px">
+      <button class="bs-chip" data-status="ongoing" type="button">连载中</button>
+      <button class="bs-chip" data-status="done" type="button">已完结</button>
+      <div id="tags" style="flex:1 1 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center"></div>
+    </div>
+  </div>
+
+  <div class="bs-grid" id="grid"></div>
+</main>
+
+<footer class="bs-footer">
+  <div>书栈 · BookStation —— <span data-i18n="footer.motto">一本一本地读。</span></div>
+  <div style="margin-top:6px">© <span id="yr"></span> Jerry · 书栈 · <a href="https://mc-creator-jerry-webpage.pages.dev/" data-i18n="footer.main">小蓝页（主站）</a></div>
+</footer>
+
+<script src="assets/lang.js?v=20261001a"></script>
+<script src="assets/bookstation.js?v=20261001a"></script>
+</body>
+</html>
+
+
+
+
