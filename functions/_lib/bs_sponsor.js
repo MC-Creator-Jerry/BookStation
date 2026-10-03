@@ -28,6 +28,21 @@ export const SPAN_MS = 31 * 24 * 3600 * 1000;
 export const BS_PLAN_ID = '2927c56ab87911f188a65254001e7c00';
 export const BS_PLAN_AMOUNT = 13.25;
 
+// 命中即发放书栈高级版的套餐（plan_id 白名单，精准优先）
+export const BS_PLAN_IDS = [
+  BS_PLAN_ID,                         // 书栈·发布功能升级 ¥13.25/月
+  '518675d8b93711f1a49352540025c377', // 茶馆·片屿·书栈 捆绑包 ¥38/月（含书栈权益）
+];
+
+// 明确属于其它站的套餐：即使金额达到书栈门槛也绝不放发（防串档）
+export const OTHER_PLAN_IDS = [
+  '76588066b37111f19efb5254001e7c00', // 小蓝页·赞助者 ¥20/月
+  '700bd638b37411f19f0a52540025c377', // 小蓝页·1级成员 ¥32.50/月
+  '07d51df0b37811f1a7ea52540025c377', // 小蓝页·1级成员 ¥360/年
+  '7005d7d6b73b11f1be2d5254001e7c00', // 茶馆·发布功能升级 ¥13.25/月
+  '8ffb1aa0b87711f1b03952540025c377', // 片屿·发布功能升级
+];
+
 const PREFIX = 'bs_code:';
 const SPONSOR = 'bs_sponsor:';
 const INDEX = 'bs_sponsor:index';
@@ -294,7 +309,17 @@ export async function listPending(context) {
 // 是否需要为这笔订单授予书栈高级版：plan_id 命中，或金额达到档位门槛。
 export function orderMatchesBookstationPlan(order) {
   if (!order) return false;
-  if (order.plan_id && String(order.plan_id) === BS_PLAN_ID) return true;
+  const pid = order.plan_id ? String(order.plan_id).trim() : '';
+
+  // 1) plan_id 精准判定：白名单命中就发；明确属于别站的套餐一律不发（防串档）
+  if (pid) {
+    for (let i = 0; i < BS_PLAN_IDS.length; i++) if (pid === BS_PLAN_IDS[i]) return true;
+    if (OTHER_PLAN_IDS.indexOf(pid) !== -1) return false;
+    return false; // 别的未知套餐：不靠金额猜，避免误发
+  }
+
+  // 2) 金额兜底：仅在订单没有 plan_id 时启用，且必须落在书栈档位区间内。
+  //    （旧逻辑「≥13.25 就发」会把小蓝页 ¥20/¥32.5 的订单误发成书栈高级版）
   const amt = parseFloat(order.total_amount || order.show_amount);
-  return Number.isFinite(amt) && amt >= BS_PLAN_AMOUNT;
+  return Number.isFinite(amt) && amt >= BS_PLAN_AMOUNT && amt < 20;
 }
